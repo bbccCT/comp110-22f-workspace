@@ -13,8 +13,8 @@ WHITE_BOX: str = "\U00002B1C"
 GREEN_BOX: str = "\U0001F7E9"
 YELLOW_BOX: str = "\U0001F7E8"
 
-#Input Guess
-while word_valid == False:
+# Input Guess
+while word_valid is False:
     input_str = input(f"What is your {len(secret)}-letter guess? ")
     if len(input_str) == len(secret):
         word_valid = True
@@ -26,15 +26,15 @@ while i < len(secret):
     if input_str[i] == secret[i]:
         colored_boxes = colored_boxes + GREEN_BOX
     else:
-        #Check for other instances of the character
+        # Check for other instances of the character
         alt_check_index = 0
         char_elsewhere = False
-        while (char_elsewhere == False) and (alt_check_index < len(secret)):
+        while (char_elsewhere is False) and (alt_check_index < len(secret)):
             if secret[alt_check_index] == input_str[i]:
                 char_elsewhere = True
             else:
                 alt_check_index = alt_check_index + 1
-        if char_elsewhere == True:
+        if char_elsewhere is True:
             colored_boxes = colored_boxes + YELLOW_BOX
         else:
             colored_boxes = colored_boxes + WHITE_BOX
