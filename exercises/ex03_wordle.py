@@ -2,6 +2,7 @@
 
 __author__ = "930605992"
 
+
 def main() -> None:
     """The entrypoint of the program and main game loop."""
     secret: str = "codes"
@@ -13,7 +14,7 @@ def main() -> None:
 
     while turn <= turns:
         print(f"=== Turn {turn}/{turns} ===")
-        guess = input_guess(secret)
+        guess = input_guess(len(secret))
         print(emojified(guess, secret))
         if guess == secret:
             print(f"You won in {turn}/{turns} turns!")
@@ -23,12 +24,13 @@ def main() -> None:
     print(f"X/{turns} - Sorry, try again tomorrow!")
 
 
-def input_guess(secret_word: str) -> str:
+def input_guess(expected_length: int) -> str:
     """Allows the user to make a guess."""
-    in_guess: str = input(f"Enter a {len(secret_word)} character word: ")
-    while len(in_guess) != len(secret_word):
-        in_guess = input(f"That wasn't {len(secret_word)} chars! Try again: ")
+    in_guess: str = input(f"Enter a {expected_length} character word: ")
+    while len(in_guess) != expected_length:
+        in_guess = input(f"That wasn't {expected_length} chars! Try again: ")
     return in_guess
+
 
 def emojified(this_guess: str, secret_word: str) -> str:
     """Checks the status of each character in the guess and returns emoji squares with colors depending on the status of the characters."""
@@ -48,6 +50,7 @@ def emojified(this_guess: str, secret_word: str) -> str:
         i += 1
     return colored_boxes
 
+
 def contains_char(secret_word: str, guess_char: str) -> bool:
     """Checks to see if a guessed character is contained within the first word."""
     assert len(guess_char) == 1
@@ -57,6 +60,7 @@ def contains_char(secret_word: str, guess_char: str) -> bool:
             return True
         alt_check_index += 1
     return False
+
 
 if __name__ == "__main__":
     main()
