@@ -15,6 +15,7 @@ def all(int_list: list[int], num_to_match: int) -> bool:
             return False
     return True
 
+
 def max(int_list: list[int]) -> int:
     """What is the maximum number in this list?"""
     if len(int_list) == 0:
@@ -26,6 +27,7 @@ def max(int_list: list[int]) -> int:
             current_max = int_list[i]
         i += 1
     return current_max
+
 
 def is_equal(int_list_1: list[int], int_list_2: list[int]) -> bool:
     """Checks whether two lists are deeply equal."""
