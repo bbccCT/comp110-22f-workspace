@@ -13,6 +13,7 @@ def only_evens(int_list: list[int]) -> list[int]:
         i += 1
     return evens
 
+
 def concat(list_1: list[int], list_2: list[int]) -> list[int]:
     """Returns a single list with all elements of the first list followed by all elements of the second list."""
     combined: list[int] = []
@@ -25,6 +26,7 @@ def concat(list_1: list[int], list_2: list[int]) -> list[int]:
         combined.append(list_2[i])
         i += 1
     return combined
+
 
 def sub(int_list: list[int], start_idx: int, end_idx: int) -> list[int]:
     """Returns a subset of a list between given indices (including starting index)."""
