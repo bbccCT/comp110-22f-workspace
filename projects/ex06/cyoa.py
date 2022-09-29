@@ -24,6 +24,7 @@ arrows_quiver: int = 30
 poisoned_arrow_bunch: int = 0
 attack_up_scroll: int = 0
 defense_up_ointment: int = 0
+ItemPrice = tuple[str, int, str]
 
 U_PLAYR: str = "\U0000265F"
 U_BOX_G: str = "\U0001F7E9"
@@ -201,7 +202,7 @@ def room_dialogue(room: str) -> str:
     global points
     if room == "tutorial":
         print(f"{player} arrives near the entrance to the White Castle, colloquially referred to as \"The Guantlet\" because of its")
-        input("  oddly linear path and progression of difficulty leading straight to the castle, which strikes most as strategically inept.")
+        input("oddly linear path and progression of difficulty leading straight to the castle, which strikes most as strategically inept.")
         input(f"Ahead of {player} is the local jester - a neutral party and a bit of a wild card, but more than happy to spar.")
         input("Some training might be useful before wagering your life in a series of disadventageous battles. And who knows? He could offer a reward for beating him.")
         choice = input("Would you like to [TALK], skip him and go [RIGHT] to the Guantlet, or [QUIT] here? ").lower()
@@ -214,13 +215,16 @@ def room_dialogue(room: str) -> str:
         else:
             global met_jester 
             met_jester = True
+            points += 10
             print("JESTER: \"Uee hee hee! You want to learn to keep yourself out of a garbage bin?")
             input("         You'll be glad you came to me! I'll teach you how to win, win, win!")
             print("         Go right for a fight, but you pay for that fray...")
             input("         But not with me; this brawl is free!\"")
             return "fight"
     elif room == "tutorial_intersection":
-        choice = input(f"{player} braces themself as they prepare to advance through the Guantlet. There's nothing else to do now but continue [UP]." ).lower()
+        choice = input(f"{player} braces themself as they prepare to advance through the Guantlet. There's nothing else to do now but continue [UP] or [QUIT]." ).lower()
+        if choice == "quit":
+            quit_game()
         i: int = 0
         while choice != "up":
             if i == 0:
@@ -233,34 +237,78 @@ def room_dialogue(room: str) -> str:
                 choice = input("Oh come on; it's just two letters! [UP] isn't hard to type! ").lower()
             elif i == 4:
                 choice = input("Ugh, okay, fine, just take some adventure points and leave [UP].").lower()
-                points += 10
+                points += 20
             else:
                 choice = input("Proceed [UP]. ").lower()
+            i += 1
         return "pawn"
     elif room == "pawn":
-        #pawn dialogue
-        input() #temp
+        print(f"Before {player}, the intrepid pawn, stands a fellow pawn, yet of the opposite side. This shall be the true beginning of your vengeful spree.")
+        choice = input(f"There is no turning back. Not for {player}. {player}, at least right now, only wants to [FIGHT]. Now, as a courtesy, what will you do? [QUIT]? Or [FIGHT]? ").lower()
+        if choice == "quit":
+            quit_game()
+        while choice != "fight" and choice != "talk":
+            choice = input(f"{player} is too blinded by fury to do anything but [FIGHT]... at least for now. ")
+            if choice == "quit":
+                quit_game()
+        input("PAWN: \"Oh? A survivor? Go back home and sulk, you miserable wretch. Your side's been beaten!\"")
+        input("      \"Really? You're gonna face me head-on? Bring it! I'm due for a promotion soon anyway!\"")
+        points += 5
+        return "fight"
     elif room == "knight":
-        #knight dialogue
-        input() #temp
+        choice = input(f"In this section of the Guantlet, {player} encounters a fearsome knight atop their horse. Will you [TALK], [FIGHT], or [QUIT]? ").lower()
+        if choice == "quit":
+            quit_game()
+        while choice != "fight" and choice != "talk":
+            choice = input("Your only choices here are [TALK] and [FIGHT], and given the look of disgust on the knight's face, they'll do the same thing... ")
+            if choice == "quit":
+                quit_game()
+        if choice == "talk":
+            points += 15
+            input("KNIGHT: \"Um.\"")
+            input("        \"What are you doing here? You already destroyed you lot.\"")
+            input("        \"Leave before I make you leave, knave.\"")
+            choice = input("Well, it was worth a shot. [FIGHT]. ").lower()
+            while choice != "fight":
+                choice = input("Proceed to the [FIGHT]. ")
+        print("        \"Alright, that's it. I'm gonna fry your liver. You can try to put up a fight and make it challenging, I guess.")
+        input("        \"Catch me if you can!\"")
+        input("        \"Spoiler alert: you can't!")
+        return "fight"
     elif room == "pawn_legion":
         #REVENGE
         input() #temp
     elif room == "shop_intersection":
-        choice = input(f"{player} comes across a branch in the path. Do you investigate [RIGHT] or continue [UP]? You won't be able to return if you proceed upwards. ").lower()
+        choice = input(f"{player} comes across a branch in the path. Do you [QUIT], investigate [RIGHT], or continue [UP]? You won't be able to return if you proceed upwards. ").lower()
+        if choice == "quit":
+            quit_game()
         while choice != "up" and choice != "right":
             choice = input("Deviate and go [RIGHT] or continue fighting [UP] without resting.").lower()
+            if choice == "quit":
+                quit_game()
     elif room == "shop":
-        input(f"{player} comes across a wooden structure with a sign advertising \"shop\", with a flashy, unfamiliar shopkeep seated inside.")
-        choice = input("SHOPKEEP: \"Welcome, traveler, warrior, whatever you might be... Could I interest you in a deal of some sort? I have many ware for purchase. ").lower()
-        if choice == "no":
-            input("           Hm. How rude. You've already decided you don't require my services before perusing the options? Suit yourself. You might just regret it later.")
+        points += 10
+        choice = input(f"{player} comes across a wooden structure with a sign advertising \"shop\", with a flashy, unfamiliar shopkeep seated inside. [TALK] to them, go back [LEFT], or [QUIT]? ").lower()
+        while choice != "talk" and choice != "left":
+            if choice == "quit":
+                quit_game()
+            choice = input("There isn't much to do here other than [TALK] to the merchant, so do so or retrn [LEFT]. ")
+        if choice == "left":
+            input("           Hm. How rude. You've already decided you don't require my services without speaking to me or perusing the options? Fine, but you might just regret it later.")
+            return "shop_intersection"
         else:
-            if shop_menu():
-                input("SHOPKEEP: \"You have my gratitude. Thank you for your patronage. Luck be upon you on the rest of your journey, and may fortune smile upon your quest.\"")
+            choice = input("SHOPKEEP: \"Welcome, traveler, warrior, whatever you might be... Could I interest you in a deal of some sort? I have many wares available... for a price, of course. ").lower()
+            if choice == "no":
+                input("           Hm. How rude. You've already decided you don't require my services before perusing the options? Suit yourself. You might just regret it later.")
+                points += 5
             else:
-                input("SHOPKEEP: \"Seen enough? Thank you for browsing, in any case. Luck be upon you; without making a purchase, I'd wager you'll need it.\"")
-        return "shop_intersection"
+                if shop_menu():
+                    input("SHOPKEEP: \"You have my gratitude. Thank you for your patronage. Luck be upon you on the rest of your journey, and may fortune smile upon your quest.\"")
+                    points += 50
+                else:
+                    input("SHOPKEEP: \"Seen enough? Thank you for browsing, in any case. Luck be upon you; without making a purchase, I'd wager you'll need it.\"")
+                    points += 15
+            return "shop_intersection"
     elif room == "bishop":
         #bishop dialogue
         input() #temp
@@ -329,11 +377,11 @@ def shop_menu() -> bool:
     global attack_up_scroll #contains generic motivational quote poster but about revenge OR contains a bad opinion to get angry over
     global defense_up_ointment #thin layer, so it only lasts 1 turn
     global gold
-    price_pot: int = 20
-    price_arrow: int = 3
-    price_poisoned_arrows: int = 30
-    price_atk_up: int = 25
-    price_def_up: int = 15
+    price_pot: ItemPrice = ("HP Potion", 20, "")
+    price_arrow: ItemPrice = ("Arrow", 3, " ")
+    price_poisoned_arrows: ItemPrice = ("Poisoned Arrow Bunch", 30, "")
+    price_atk_up: ItemPrice = ("Attack Up Scroll", 25, "")
+    price_def_up: ItemPrice = ("Defense Up Ointment", 15, "")
     bought: bool = False
     print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
     print_stats()
@@ -342,16 +390,16 @@ def shop_menu() -> bool:
     print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
 
 
-def shop_prices(p_pot: int, p_arw: int, p_p_arws: int, p_atk: int, p_def: int) -> bool:
+def shop_prices(p_pot: ItemPrice, p_arw: ItemPrice, p_p_arws: ItemPrice, p_atk: ItemPrice, p_def: ItemPrice) -> bool:
     global gold
     bought: bool = False;
     buying: bool = True;
     while buying:
-        print(f"{p_pot} - [1] HP Potion")
-        print(f"{p_arw}  - [2] Arrow")
-        print(f"{p_p_arws} - [3] Poisoned Arrow Bunch")
-        print(f"{p_atk} - [4] Attack Up Scroll")
-        print(f"{p_def} - [5] Defense Up Ointment")
+        print(f"{p_pot[1]}{p_pot[2]} - [1] {p_pot[0]}")
+        print(f"{p_arw[1]}{p_arw[2]}  - [2] {p_arw[0]}")
+        print(f"{p_p_arws[1]}{p_p_arws[2]} - [3] {p_p_arws[0]}")
+        print(f"{p_atk[1]}{p_atk[2]} - [4] {p_atk[0]}")
+        print(f"{p_def[1]}{p_def[2]} - [5] {p_def[0]}")
         print("     [LEAVE]")
         choice: str = input("Which item would you like to look at? ").lower()
         if choice == "leave" or choice == "quit" or choice == "back" or choice == "cancel" or choice == "no":
