@@ -4,6 +4,7 @@ __author__ = "930605992"
 
 
 import time
+from random import randint
 
 
 points: int = 0
@@ -12,6 +13,7 @@ user_name: str = ""
 player: str = ""
 max_health: int = 25
 health: int = max_health
+speed: int = 10
 room_id: str = "tutorial"
 met_jester: bool = False;
 upgrades: list[str] = list()
@@ -204,21 +206,21 @@ def room_dialogue(room: str) -> str:
         print(f"{player} arrives near the entrance to the White Castle, colloquially referred to as \"The Guantlet\" because of its")
         input("oddly linear path and progression of difficulty leading straight to the castle, which strikes most as strategically inept.")
         input(f"Ahead of {player} is the local jester - a neutral party and a bit of a wild card, but more than happy to spar.")
-        input("Some training might be useful before wagering your life in a series of disadventageous battles. And who knows? He could offer a reward for beating him.")
-        choice = input("Would you like to [TALK], skip him and go [RIGHT] to the Guantlet, or [QUIT] here? ").lower()
-        while choice != "talk" and choice != "right" and choice != "quit":
+        input("Some training might be useful before wagering your life in a series of disadventageous battles. And who knows? They could offer a reward for beating them.")
+        choice = input("Would you like to [TALK], skip them and go [RIGHT] to the Guantlet, or [QUIT] here? ").lower()
+        while choice != "talk" and choice != "right":
+            if choice == "quit":
+                quit_game()
             choice = input("[TALK] to the jester, go [RIGHT], or [QUIT] the game? ").lower()
-        if choice == "quit":
-            quit_game()
-        elif choice == "right":
+        if choice == "right":
             return "tutorial_intersection"
         else:
             global met_jester 
             met_jester = True
-            points += 10
-            print("JESTER: \"Uee hee hee! You want to learn to keep yourself out of a garbage bin?")
+            points += 15
+            input("JESTER: \"Uee hee hee! You want to learn to keep yourself out of a garbage bin?")
             input("         You'll be glad you came to me! I'll teach you how to win, win, win!")
-            print("         Go right for a fight, but you pay for that fray...")
+            input("         Go right for a fight, but you pay for that fray...")
             input("         But not with me; this brawl is free!\"")
             return "fight"
     elif room == "tutorial_intersection":
@@ -227,6 +229,8 @@ def room_dialogue(room: str) -> str:
             quit_game()
         i: int = 0
         while choice != "up":
+            if choice == "quit":
+                quit_game()
             if i == 0:
                 choice = input("There's literally nothing to do here. Go [UP]. ").lower()
             elif i == 1:
@@ -245,24 +249,20 @@ def room_dialogue(room: str) -> str:
     elif room == "pawn":
         print(f"Before {player}, the intrepid pawn, stands a fellow pawn, yet of the opposite side. This shall be the true beginning of your vengeful spree.")
         choice = input(f"There is no turning back. Not for {player}. {player}, at least right now, only wants to [FIGHT]. Now, as a courtesy, what will you do? [QUIT]? Or [FIGHT]? ").lower()
-        if choice == "quit":
-            quit_game()
         while choice != "fight" and choice != "talk":
-            choice = input(f"{player} is too blinded by fury to do anything but [FIGHT]... at least for now. ")
             if choice == "quit":
                 quit_game()
+            choice = input(f"{player} is too blinded by fury to do anything but [FIGHT]... at least for now. ").lower()
         input("PAWN: \"Oh? A survivor? Go back home and sulk, you miserable wretch. Your side's been beaten!\"")
         input("      \"Really? You're gonna face me head-on? Bring it! I'm due for a promotion soon anyway!\"")
         points += 5
         return "fight"
     elif room == "knight":
         choice = input(f"In this section of the Guantlet, {player} encounters a fearsome knight atop their horse. Will you [TALK], [FIGHT], or [QUIT]? ").lower()
-        if choice == "quit":
-            quit_game()
         while choice != "fight" and choice != "talk":
-            choice = input("Your only choices here are [TALK] and [FIGHT], and given the look of disgust on the knight's face, they'll do the same thing... ")
             if choice == "quit":
                 quit_game()
+            choice = input("Your only choices here are [TALK] and [FIGHT], and given the look of disgust on the knight's face, they'll do the same thing... ").lower()
         if choice == "talk":
             points += 15
             input("KNIGHT: \"Um.\"")
@@ -270,24 +270,44 @@ def room_dialogue(room: str) -> str:
             input("        \"Leave before I make you leave, knave.\"")
             choice = input("Well, it was worth a shot. [FIGHT]. ").lower()
             while choice != "fight":
-                choice = input("Proceed to the [FIGHT]. ")
+                if choice == "quit":
+                    quit_game()
+                choice = input("Proceed to the [FIGHT]. ").lower()
         print("        \"Alright, that's it. I'm gonna fry your liver. You can try to put up a fight and make it challenging, I guess.")
         input("        \"Catch me if you can!\"")
         input("        \"Spoiler alert: you can't!")
         return "fight"
     elif room == "pawn_legion":
-        #REVENGE
-        input() #temp
-    elif room == "shop_intersection":
-        choice = input(f"{player} comes across a branch in the path. Do you [QUIT], investigate [RIGHT], or continue [UP]? You won't be able to return if you proceed upwards. ").lower()
-        if choice == "quit":
-            quit_game()
-        while choice != "up" and choice != "right":
-            choice = input("Deviate and go [RIGHT] or continue fighting [UP] without resting.").lower()
+        choice = input(f"As {player} advances, they come across a whole platoon of pawns! They seem angry about something. [TALK], [FIGHT], or [QUIT]?").lower()
+        while choice != "fight" and choice != "talk":
             if choice == "quit":
                 quit_game()
+            choice = input("I'm... not sure you have much choice here. You can immediately [FIGHT] them, or you could attempt to [TALK] to them. ").lower()
+        if choice == "talk":
+            points += 15
+            input("PAWN 1: \"Hey, what the-")
+            input("         What's a black pawn doing all the way over-\"")
+            input("PAWN 4: \"Hold up. That's the little snot that merc'd Gary!\"")
+            input("PAWN 6: \"WHAT???\"")
+            input("PAWN 3: \"Let's get'im!")
+            input("They're out for blood. I'm sensing a pattern with trying to talk to these guys before fighting them... At least you get some adventure points out of it.")
+            while choice != "fight":
+                choice = input("Well, time to [FIGHT]. ").lower()
+                if choice == "quit":
+                    quit_game()
+        input("PAWN 7: \"We've got you surrounded, at least from this side!\"")
+        input("PAWN 5: \"You're outnumbered. Just give up now!\"")
+        input("PAWN 2: \"Can't dodge all of us forever. Let's get this over with.\"")
+        input("PAWN 1: \"Square up.\"")
+        return "fight"
+    elif room == "shop_intersection":
+        choice = input(f"{player} comes across a branch in the path. Do you [QUIT], investigate [RIGHT], or continue [UP]? You won't be able to return if you proceed upwards. ").lower()
+        while choice != "up" and choice != "right":
+            if choice == "quit":
+                quit_game()
+            choice = input("Deviate and go [RIGHT] or continue fighting [UP] without resting.").lower()
     elif room == "shop":
-        points += 10
+        points += 15
         choice = input(f"{player} comes across a wooden structure with a sign advertising \"shop\", with a flashy, unfamiliar shopkeep seated inside. [TALK] to them, go back [LEFT], or [QUIT]? ").lower()
         while choice != "talk" and choice != "left":
             if choice == "quit":
@@ -307,18 +327,97 @@ def room_dialogue(room: str) -> str:
                     points += 50
                 else:
                     input("SHOPKEEP: \"Seen enough? Thank you for browsing, in any case. Luck be upon you; without making a purchase, I'd wager you'll need it.\"")
-                    points += 15
+                    points += 10
             return "shop_intersection"
     elif room == "bishop":
-        #bishop dialogue
-        input() #temp
+        input(f"After a bit more traveling, {player} finds themself entering fancier and fancier terrain, and comes across a haughty-looking bishop with a pointy hat.")
+        input("The bishop seems to notice you quite quickly, glaring out of the corner of their eye, but not saying anything as of yet.")
+        choice = input("What course of action would you like to pursue? Attempt to [TALK] and reason with them, [FIGHT] right away, or [QUIT]? ").lower()
+        while choice != "fight" and choice != "talk":
+            if choice == "quit":
+                quit_game()
+            choice = input("I don't think you can really do anything to circumvent the bishop. [TALK] with them or jump straight to the [FIGHT]. ").lower()
+        if choice == "talk":
+            points += 15
+            choice = input("BISHOP: \"Oh. Now it tries to talk to me. What do you want, peasant?\" ").lower()
+            if "kill" in choice or "fight" in choice or "destroy" in choice:
+                input("        \"My. How uncivilized.")
+                if "kill me" not in choice and "destroy me" not in choice:
+                    input("         I highly doubt you can significantly harm me. How about I dispose of you, instead?\"")
+                points += 15
+            print("        \"Eugh; I'm glad we're enemies.\"")
+            choice = input("The bishop's disdain for you is evident. It seems you'll have to [FIGHT] them. ").lower()
+            while choice != "fight":
+                if choice == "quit":
+                    quit_game()
+                elif choice == "talk":
+                    choice == input("The bishop doesn't seem much for conversation. ").lower()
+                else:
+                    choice == input("This bishop's ego with be their downfall; they're a bit overconfident in their ability to [FIGHT]. ").lower()
+        deity: str = "Chess"
+        if randint(0,3) == 3:
+            global user_name
+            deity = user_name
+        input(f"BISHOP: \"Now then, let us begin. The power of {deity} compels you! Begone, pawn!")
+        return "fight"
     elif room == "rook":
-        #rook dialogue
-        input() #temp
+        input(f"{player} comes upon the next obstacle to overcome: a well-armored bastion of a rook. Their expresson is stern, and their arms are crossed.")
+        choice = input("What do you want to do? [TALK] to them and try to reason your way by, [FIGHT] them right away, or [QUIT]? ").lower()
+        while choice != "fight" and choice != "talk":
+            if choice == "quit":
+                quit_game()
+            choice = input("This rook is not moving. Looks like you'll have to [TALK] to them or even just plain [FIGHT]. ").lower()
+        if choice == "talk":
+            points += 20
+            input("ROOK: \"Halt! None shall pass this. I have strict orders to not let anyone by.")
+            print("       Though if you are a pawn or even simply a civilian, you are advised to take shelter.\"")
+            input("      \"There have been reports of a deranged madpiece sent by the defeated enemy slaughtering our troops, working their way through the ranks...\"")
+            input("      \"...\"")
+            input("      \"...Wait...\"")
+            print("      \"You're a pawn of the black side, right?\"")
+            while choice != "yes" and choice != "no":
+                choice = input("[YES] or [NO]? ").lower()
+                if choice == "quit":
+                    quit_game()
+            if choice == "yes":
+                print("ROOK: \"Ah, I thought so! You must be sympathetic towards our side, though, if you're this close to the Castle.")
+                input("       If you see the rampaging one, could you ask them to stop, please? Comrade to comrade?\"")
+                input("      \"...\"")
+            else:
+                input("ROOK: \"Oh. Hm. Sorry for assuming.\"")
+                input("      \"...\"")
+                input("      \"...No, wait... You definitely are... But why would you lie to me like that?\"")
+            input("      \"WAIT OH NO THAT'S YOU!!!\"")
+            choice = input("Darn; they've seen through your ruse. Oh well. Here you go [FIGHT]ing again. ").lower()
+            while choice != "fight":
+                choice = input("The rook has seen through your attempts at deceit and is now on guard. You'll have to [FIGHT]. ").lower()
+                if choice == "quit":
+                    quit_game()
+        else:
+            input("ROOK: \"What the heck? What are you doing? Halt!\"")
+        input(f"{player} approaches the rook.")
+        input("ROOK: \"So we must clash? In that case, I shall strike you down!\"")
+        return "fight"
     elif room == "queen":
-        #queen dialogue
+        input(f"As they near the end of the Guantlet, {player}'s path is suddenly blocked by an incredibly intimidating presence...")
+        input(f"The Queen appears! Their regal form towers above you. A flash of regret passes through {player} as they glare down at them.")
+        choice = input(f"What will you do? What can you do, though? [TALK]? [FIGHT]? [QUIT]? ").lower()
+        while choice != "talk" and choice != "fight":
+            if choice == "quit":
+                quit_game()
+            choice = input("There's no turning back now... You must proceed. [TALK] or [FIGHT]. ").lower()
+        if choice == "talk":
+            points += 20
+            input("QUEEN: \"Lowly pawn... How dare thee intrude upon our Castle Grounds?\"")
+            input("       \"We will enlighten thee about defiling our Royal Realm!\"")
+            input("       \"Ah, and we will claim vengeance for our fallen subjects.\"")
+            choice = input(f"The Queen and {player} glare at each other... Looks like [FIGHT]ing is your only option. ").lower()
+            while choice != "fight":
+                if choice == "quit":
+                    quit_game()
+                choice = input(f"Proceed. [FIGHT]. ")
+        
         # Haven't you heard? White always goes first!
-        input() #temp
     elif room == "king":
         #king dialogue before fight and after if spare
         input() #temp
