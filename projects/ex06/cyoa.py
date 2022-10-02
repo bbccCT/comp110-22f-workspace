@@ -159,7 +159,7 @@ def draw_map(room: str) -> None:
         {U_BWALL}{U_BWALL}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_PLAYR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_BWALL}{U_BWALL}
         {U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}
         ''')
-    elif room == "king":
+    elif room == "king" or room == "king_spared":
         U_WKING: str = "\U00002654"
         print(f'''
         {U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}
@@ -412,15 +412,49 @@ def room_dialogue(room: str) -> str:
             input("       \"We will enlighten thee about defiling our Royal Realm!\"")
             input("       \"Ah, and we will claim vengeance for our fallen subjects.\"")
             choice = input(f"The Queen and {player} glare at each other... Looks like [FIGHT]ing is your only option. ").lower()
+            tried_talking: bool = False
             while choice != "fight":
                 if choice == "quit":
                     quit_game()
-                choice = input(f"Proceed. [FIGHT]. ")
-        
-        # Haven't you heard? White always goes first!
+                elif choice == "talk" and not tried_talking:
+                    print("QUEEN: \"Don't bother trying to deceive us with your talk of justice. We're not as soft as the King.\"")
+                    points += 10
+                    tried_talking = True
+                choice = input(f"Proceed. [FIGHT]. ").lower
+        input("QUEEN: \"You dare to resist us? Have at thee, villainous cur! Off with thy head!\"")
+        return "fight"
     elif room == "king":
-        #king dialogue before fight and after if spare
-        input() #temp
+        input(f"Finally, after a difficult journey plagued with trials, {player} arrives at the throne room: the pinnacle of the Guantlet.")
+        input("The enemy King sits before you upon their throne. They raise their gaze, settling upon {player}. Their face bears an expression of weariness.")
+        choice = input("This is it. [TALK]. [FIGHT]. [QUIT]. In any case, this is where it ends. ").lower()
+        i: int = 0
+        while choice != "talk" and choice != "fight":
+            if choice == "quit":
+                quit_game()
+            if i == 0:
+                choice = input("You cannot evade fate, at least for now... Perhaps once you've sufficiently weakened the King? No matter. At the moment, you must [TALK] or [FIGHT]. ").lower()
+            else:
+                choice = input("[TALK]. [FIGHT]. In whatever you choose, proceed. ").lower()
+            i += 1
+        if choice == "talk":
+            points += 25
+            input("KING: \"Greetings, young one.\"")
+            input("      \"I want so badly to offer you refreshments of some sort... but I suppose I cannot do that.\"")
+            input("      \"It was never my intention to go to war... nor to instill such a burning hatred for your kind within my subjects.\"")
+            input("      \"I never wanted for so much blood to be shed. Please, if you have it within you, forgive me for this.\"")
+            input("      \"I wholly understand if that is an impossibility, though.\"")
+            input("      \"It was nice to meet you, little pawn. Truly.\"")
+            input("The King rises from their seat, their face having assumed a visage of resigned determination.")
+            input("They are sparing you from having to make the choice one final time, initiating the fight themself.")
+        print("KING: \"I'm sorry.\"")
+        time.sleep(1)
+        print(f"     \"Farewell, {player}.\"")
+        time.sleep(1)
+        input("The King attacks.")
+        return "fight"
+    elif room == "king_spared":
+        input()
+        #king dialogue after fight if spared
     elif room == "king_dead":
         #narration & jester dialogue (evil)
         input() #temp
@@ -428,6 +462,7 @@ def room_dialogue(room: str) -> str:
 
 def room_fight(room: str) -> None:
     #fights here
+    #queen says "Haven't you heard? White always goes first!" after attacking first first round
     input() #temp
 
 
