@@ -50,6 +50,7 @@ def main() -> None:
 
 
 def greet() -> None:
+    """Begin the game with instructions and lore, and input names."""
     global points
     input("(When lines of text not requiring input appear, press the ENTER key to progress after reading.)")
     print("(Good. Now, when input is required, options such as [FIGHT] or [TALK] will be included")
@@ -87,6 +88,7 @@ def greet() -> None:
 
 
 def draw_map(room: str) -> None:
+    """Draw rooms that the player enters using emojis."""
     global U_PLAYR
     U_BWALL: str = "\U00002B1B"
     U_FLOOR: str = "\U00002B1C"
@@ -208,6 +210,7 @@ def draw_map(room: str) -> None:
 
 
 def room_dialogue(room: str) -> str:
+    """Interact with characters depending on the room the player enters."""
     choice: str = ""
     global points
     if room == "tutorial":
@@ -514,6 +517,7 @@ def room_dialogue(room: str) -> str:
 
 
 def room_fight(room: str) -> str:
+    """Begin a fight with the proper character.""" #CURRENTLY UNFINISHED
     choice: str = ""
     #fights here
     #queen says "Haven't you heard? White always goes first!" after attacking first first round
@@ -542,6 +546,7 @@ def room_fight(room: str) -> str:
 
 
 def print_stats() -> None:
+    """Print player stats out for use in the shop and in battle."""
     global hp_potions
     global arrows_quiver
     global poisoned_arrow_bunch
@@ -580,6 +585,7 @@ def print_stats() -> None:
 
 
 def shop_menu() -> bool:
+    """Get the shop ready for interaction."""
     global hp_potions
     global arrows_quiver
     global poisoned_arrow_bunch
@@ -600,6 +606,7 @@ def shop_menu() -> bool:
 
 
 def shop_prices(p_pot: ItemPrice, p_arw: ItemPrice, p_p_arws: ItemPrice, p_atk: ItemPrice, p_def: ItemPrice) -> bool:
+    """Display item prices and allow player to purchase them."""
     global gold
     bought: bool = False;
     buying: bool = True;
@@ -655,6 +662,7 @@ def shop_prices(p_pot: ItemPrice, p_arw: ItemPrice, p_p_arws: ItemPrice, p_atk: 
 
 
 def quit_game() -> None:
+    """Quit game when requested or finished."""
     print(f"Thank you so much for playing, {user_name}!")
     print(f"You accumulated {points} \"adventure points\" and {gold} gold!")
     quit()
