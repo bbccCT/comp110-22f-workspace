@@ -43,7 +43,7 @@ def main() -> None:
         draw_map(room_id)
         path: str = room_dialogue(room_id)
         if path == "fight":
-            room_fight(room_id)
+            room_id = room_fight(room_id)
         else:
             room_id = path
         
@@ -72,18 +72,15 @@ def greet() -> None:
     player = input("Now... What's that daring hero's name? ")
     while not player:
         player = input("(Please don't just spam enter. Name the hero.) ")
-    time.sleep(2)
     input("...Interesting...")
     input(f"And the hero's name... was {player}.")
-    time.sleep(2)
     global user_name
     input("And what of the user?")
     user_name = input("What is your name? ")
     while not user_name:
         user_name = input("(Really? Don't detract from the experience. What is your real name?) ")
     input("Ah, very good. Well then, it is time to begin your journey.")
-    input(f"Good luck, {user_name}.")
-    time.sleep(2)
+    input(f"Good luck, {user_name}.\n")
     input(f"And so, {player} set off, seeking vengeance.")
     input(f"However, they lacked training, and decided to start by stopping by to see an impartial (and rather eccentric) character for some training: the jester.")
     points += 5
@@ -99,6 +96,7 @@ def draw_map(room: str) -> None:
     U_BSHOP: str = "\U00002657"
     U_WROOK: str = "\U00002656"
     U_QUEEN: str = "\U00002655"
+    U_WKING_ROTATED: str = "\U0001FA09"
     u_current_enemy: str = ""
     if room == "pawn":
         u_current_enemy = U_WPAWN
@@ -110,6 +108,8 @@ def draw_map(room: str) -> None:
         u_current_enemy = U_WROOK
     elif room == "queen":
         u_current_enemy = U_QUEEN
+    else:
+        u_current_enemy = U_FLOOR
 
     if room == "tutorial":
         print(f'''
@@ -170,7 +170,15 @@ def draw_map(room: str) -> None:
         {U_BWALL}{U_BWALL}{U_BWALL}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_BWALL}{U_BWALL}{U_BWALL}
         ''')
     elif room == "king_dead":
-        U_WKING_ROTATED: str = "\U0001FA09"
+        print(f'''
+        {U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}
+        {U_BWALL}{U_BWALL}{U_BWALL}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_BWALL}{U_BWALL}{U_BWALL}
+        {U_BWALL}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_WKING_ROTATED}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_BWALL}
+        {U_BWALL}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_PLAYR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_BWALL}
+        {U_BWALL}{U_BWALL}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_BWALL}{U_BWALL}
+        {U_BWALL}{U_BWALL}{U_BWALL}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_BWALL}{U_BWALL}{U_BWALL}
+        ''')
+    elif room == "king_dead_joker":
         print(f'''
         {U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}{U_BWALL}
         {U_BWALL}{U_BWALL}{U_BWALL}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_FLOOR}{U_BWALL}{U_BWALL}{U_BWALL}
@@ -224,7 +232,7 @@ def room_dialogue(room: str) -> str:
             input("         But not with me; this brawl is free!\"")
             return "fight"
     elif room == "tutorial_intersection":
-        choice = input(f"{player} braces themself as they prepare to advance through the Guantlet. There's nothing else to do now but continue [UP] or [QUIT]." ).lower()
+        choice = input(f"{player} braces themself as they prepare to advance through the Guantlet. There's nothing else to do now but continue [UP] or [QUIT]. " ).lower()
         if choice == "quit":
             quit_game()
         i: int = 0
@@ -266,7 +274,7 @@ def room_dialogue(room: str) -> str:
         if choice == "talk":
             points += 15
             input("KNIGHT: \"Um.\"")
-            input("        \"What are you doing here? You already destroyed you lot.\"")
+            input("        \"What are you doing here? We already destroyed you lot.\"")
             input("        \"Leave before I make you leave, knave.\"")
             choice = input("Well, it was worth a shot. [FIGHT]. ").lower()
             while choice != "fight":
@@ -275,10 +283,10 @@ def room_dialogue(room: str) -> str:
                 choice = input("Proceed to the [FIGHT]. ").lower()
         print("        \"Alright, that's it. I'm gonna fry your liver. You can try to put up a fight and make it challenging, I guess.")
         input("        \"Catch me if you can!\"")
-        input("        \"Spoiler alert: you can't!")
+        input("        \"Spoiler alert: you can't!\"")
         return "fight"
     elif room == "pawn_legion":
-        choice = input(f"As {player} advances, they come across a whole platoon of pawns! They seem angry about something. [TALK], [FIGHT], or [QUIT]?").lower()
+        choice = input(f"As {player} advances, they come across a whole platoon of pawns! They seem angry about something. [TALK], [FIGHT], or [QUIT]? ").lower()
         while choice != "fight" and choice != "talk":
             if choice == "quit":
                 quit_game()
@@ -306,9 +314,14 @@ def room_dialogue(room: str) -> str:
             if choice == "quit":
                 quit_game()
             choice = input("Deviate and go [RIGHT] or continue fighting [UP] without resting.").lower()
+        if choice == "right":
+            return "shop"
+        else:
+            return "bishop"
     elif room == "shop":
         points += 15
-        choice = input(f"{player} comes across a wooden structure with a sign advertising \"shop\", with a flashy, unfamiliar shopkeep seated inside. [TALK] to them, go back [LEFT], or [QUIT]? ").lower()
+        input(f"{player} comes across a wooden structure with a sign advertising \"shop\", with a flashy, unfamiliar shopkeep seated inside.")
+        choice = input("[TALK] to them, go back [LEFT], or [QUIT]? ").lower()
         while choice != "talk" and choice != "left":
             if choice == "quit":
                 quit_game()
@@ -453,17 +466,79 @@ def room_dialogue(room: str) -> str:
         input("The King attacks.")
         return "fight"
     elif room == "king_spared":
-        input()
-        #king dialogue after fight if spared
+        points += 100
+        input("KING: \"You... You're sparing me? After all I've done?\"")
+        input("      \"From the bottom of my heart... you have my gratitude.\"")
+        input("      \"Come... let us put an end to this senseless hatred.\"")
+        print(f"      \"We shall foster a new era of piece between our peoples. {player}, would you speak on behalf of your people and bridge the gap between our nations?")
+        choice = input("[YES] or [NO]? ").lower()
+        while choice != "yes" and choice != "no":
+            choice = input("Will you become the ambassador of the Black Side? ")
+        if choice == "yes":
+            points += 15
+            input(f"KING: \"Excellent. Thank you, {player}. Now, let us begin. This will be... a long process...")
+        else:
+            points += 5
+            input(f"KING: \"Ah... That is alright. I cannot force you to do anything. In any case, I must now start to reform my kingdom. I will call an escort to see you back home. Goodbye, {player}.")
+        input(f"And so, {player}'s quest has come to a close, ending in peace after a trail of bloodshed...")
     elif room == "king_dead":
-        #narration & jester dialogue (evil)
-        input() #temp
+        points += 100
+        input(f"And so... it is done. {player} has defeated the White Side and taken revenge for the slaughtering of their forces.")
+        input(f"A creeping sense of cold emptiness begins to engulf {player} as the finality of what they've done sets in...")
+        input(f"But then a strangely familiar voice calls out from behind {player}...")
+        input("? ? ? : \"So then... you've succeeded.\"")
+        input("        \"Exactly as I planned, exactly as I needed.\"")
+        choice = input(". . . [ T U R N ]   a r o u n d . . .").lower()
+        while choice != "turn":
+            if choice == "quit":
+                input("You cannot quit now.")
+            print("? ? ? : \"Face me. Then you'll see.\"")
+            choice = input("[TURN] AROUND. ")
+        input("You turn around to see the Jester from outside the entrance grinning broadly, casting a shadow in the light from the doorway.")
+        draw_map("king_dead_joker")
+        input("JESTER: \"Thanks to your continued assistance, in getting here, I've met no resistance!\"")
+        input("        \"You've paved a path for me to get my way; if you don't mind I'll fill this power vacuum...")
+        input("         So at the end of the day, it's MY seeds of power that'll bloom!\"")
+        input("        \"But wait, if we tussle now I'll surely fail,")
+        input("         unless I find a way to somehow end the tale...\"")
+        input(f"        \"After all, {player}, you're but a puppet on strings.")
+        input("         Winning over and over until I die once would sting.\"")
+        input(f"        \"So goodbye, {user_name}. Perhaps our meeting was fated...")
+        print("        It's been fun, but now-\"-")
+        time.sleep(1)
+        print("<<Error: Connection Terminated>>")
+        time.sleep(3)
+        quit_game()
+    else:
+        input("The room dialogue being called for does not exist. Sorry! You've somehow broken the game.")
 
 
-def room_fight(room: str) -> None:
+def room_fight(room: str) -> str:
+    choice: str = ""
     #fights here
     #queen says "Haven't you heard? White always goes first!" after attacking first first round
     input() #temp
+    if room == "tutorial":
+        return "tutorial_intersection"
+    elif room == "pawn":
+        return "knight"
+    elif room == "knight":
+        return "pawn_legion"
+    elif room == "pawn_legion":
+        return "shop_intersection"
+    elif room == "bishop":
+        return "rook"
+    elif room == "rook":
+        return "queen"
+    elif room == "queen":
+        return "king"
+    elif room == "king":
+        while choice != "talk" and choice != "fight" and choice != "spare" and choice != "kill":
+            choice = input("[TALK] or [FIGHT]. [SPARE] or [KILL]. ").lower()
+        if choice == "talk" or choice == "spare":
+            return "king_spared"
+        else:
+            return "king_dead"
 
 
 def print_stats() -> None:
@@ -475,7 +550,7 @@ def print_stats() -> None:
     global gold
     global points
     global health
-    global maxHealth
+    global max_health
     global U_BOX_G
     global U_BOX_Y
     global U_BOX_R
@@ -490,10 +565,10 @@ def print_stats() -> None:
     print(f"   Inventory:   |   HP Potions: {hp_potions}   |   Arrows: {arrows_quiver + arrows_ready}   |   Poisoned Arrow Bunches: {poisoned_arrow_bunch}")
     print(f"                |   Attack Up Scrolls: {attack_up_scroll}   |   Defense Up Ointment: {defense_up_ointment}")
     print(f"   {U_MONEYBAG} {gold} Gold     |   Adventure Points: {points}")
-    print(f"   HP: {health}/{maxHealth}")
-    if health > maxHealth/2:
+    print(f"   HP: {health}/{max_health}")
+    if health > max_health/2:
         use_u_box = U_BOX_G
-    elif health > maxHealth/5:
+    elif health > max_health/5:
         use_u_box = U_BOX_Y
     else:
         use_u_box = U_BOX_R
@@ -517,47 +592,66 @@ def shop_menu() -> bool:
     price_atk_up: ItemPrice = ("Attack Up Scroll", 25, "")
     price_def_up: ItemPrice = ("Defense Up Ointment", 15, "")
     bought: bool = False
-    print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+    print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
     print_stats()
     if shop_prices(price_pot, price_arrow, price_poisoned_arrows, price_atk_up, price_def_up):
         bought = True
-    print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+    print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
 
 
 def shop_prices(p_pot: ItemPrice, p_arw: ItemPrice, p_p_arws: ItemPrice, p_atk: ItemPrice, p_def: ItemPrice) -> bool:
     global gold
     bought: bool = False;
     buying: bool = True;
+    wares: list[ItemPrice] = [p_pot, p_arw, p_p_arws, p_atk, p_def]
     while buying:
-        print(f"{p_pot[1]}{p_pot[2]} - [1] {p_pot[0]}")
-        print(f"{p_arw[1]}{p_arw[2]}  - [2] {p_arw[0]}")
-        print(f"{p_p_arws[1]}{p_p_arws[2]} - [3] {p_p_arws[0]}")
-        print(f"{p_atk[1]}{p_atk[2]} - [4] {p_atk[0]}")
-        print(f"{p_def[1]}{p_def[2]} - [5] {p_def[0]}")
+        i: int = 0
+        while i < len(wares):
+            print(f"{wares[i][1]}{wares[i][2]} - [{i + 1}] {wares[i][0]}")
+            i += 1
         print("     [LEAVE]")
         choice: str = input("Which item would you like to look at? ").lower()
         if choice == "leave" or choice == "quit" or choice == "back" or choice == "cancel" or choice == "no":
             buying = False
             return bought
-        elif choice == "1":
-            print("Health Potion. 25G Each. Can be consumed in battle to regain 12% - 40% of your HP.  Tastes a bit like honey.")
-            choice = input("How many potions would you like to purchase? ")
+        elif choice == "1" or choice == "2" or choice == "3" or choice == "4" or choice == "5":
+            if choice == "1":
+                print("Health Potion. Can be consumed in battle to regain 12% - 40% of your HP.  Tastes a bit like honey.")
+            elif choice == "2":
+                print("Arrows. Used as ammo for your bow. You can have up to 4 ready at a time, but the rest are stored in your quiver.")
+            elif choice == "3":
+                print("Poisoned Arrows. Can be selected during battle to draw 4 arrows that also inflict extra damage over time ")
+                print("                 instead of normal arrows to use in your bow.")
+            elif choice == "4":
+                print("A Magical Scroll of Attack. Temporarily boosts your damage output by 3-8 damage for 3 turns if used during battle.")
+            elif choice == "5":
+                print("An Magical Ointment of Defense. Reduces incoming damage by 30%-80% if used during battle.")
+                print("                                Quite thin; rubs off after absorbing damage from 3 attacks.")
+            input(f" {wares[int(choice) - 1][1]}G Each.")
+            choice_amt = input("How many would you like to purchase? ")
             choice_int: int = 0
             try:
-                choice_int = int(choice)
+                choice_int = int(choice_amt)
             except ValueError:
                 choice_int = -1
             if choice_int == 0:
-                print("Nothing at the moment? That's alright. By all means, though, continue looking.")
-            elif choice_int > 0 and choice_int <= gold:
-                print(f"{choice_int} health potions... great; that'll be {p_pot * choice_int}G. After the purchase, you should have {gold - p_pot * choice_int}G left.")
+                input("Nothing at the moment? That's alright. By all means, though, continue looking.")
+            elif choice_int > 0 and wares[int(choice) - 1][1] * choice_int <= gold:
+                input(f"{choice_int}... great; that'll be {wares[int(choice) - 1][1] * choice_int}G. After the purchase, you should have {gold - wares[int(choice) - 1][1] * choice_int}G left.")
                 choice = input("Would you like to complete the transaction? [YES] or [NO]? ").lower()
+                while choice != "yes" and choice != "no":
+                    choice = input("Complete purchase? [YES] or [NO]. ").lower()
                 if choice == "yes":
-                    gold -= p_pot * choice_int
+                    gold -= wares[int(choice) - 1][1] * choice_int
                     bought = True;
-                    print("Wonderful! Would you like anything else?")
+                    input("Wonderful! Would you like anything else?")
+                else:
+                    input("Fair enough. Why don't you browse a bit more and return with a purchase you're willing to follow through with?")
+            elif choice_int > 0 and wares[int(choice) - 1][1] * choice_int > gold:
+                input(f"Oh... It looks as if you don't have quite enough gold... You have {gold}G, but you tried to buy {wares[int(choice) - 1][1] * choice_int}G's worth of goods.")
+                input("We can't have that! Here, take a look at the products once more... and pay attention to how you allocate your budget.")
             else:
-                print("That... is not a valid quantity. Maybe you need a moment to look at all the items again.")
+                input("That... is not a valid quantity. Maybe you need a moment to look at all the items again.")
 
 
 def quit_game() -> None:
