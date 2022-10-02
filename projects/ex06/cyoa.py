@@ -26,7 +26,8 @@ arrows_quiver: int = 30
 poisoned_arrow_bunch: int = 0
 attack_up_scroll: int = 0
 defense_up_ointment: int = 0
-ItemPrice = tuple[str, int, str]
+ItemPrice = tuple[str, int, str] # Name, Price, Extra space if needed
+EnemyStats = tuple[str, int, int, int, int, int, int] # Name, Health, Attack, Defense, Speed (inverse to Accuracy Window if have reaction attack upgrade), G on kill, points on win
 
 U_PLAYR: str = "\U0000265F"
 U_BOX_G: str = "\U0001F7E9"
@@ -519,30 +520,111 @@ def room_dialogue(room: str) -> str:
 def room_fight(room: str) -> str:
     """Begin a fight with the proper character.""" #CURRENTLY UNFINISHED
     choice: str = ""
-    #fights here
+    fight_over: bool = False
+    turn: int = 0
+    HEALTH_UPGRADE_HEALTH: int = 50
+    enemy: EnemyStats
+    STATS_JESTER: EnemyStats = ("Jester", 50, 15, 20, 999, 30, 50)
+    STATS_PAWN: EnemyStats = ("Pawn", 25, 10, 20, 10, 5, 15)
+    STATS_KNIGHT: EnemyStats = ("Knight", 75, 25, 25, 80, 50, 30)
+    STATS_BISHOP: EnemyStats = ("Bishop", 30, 75, 5, 50, 75, 50)
+    STATS_ROOK: EnemyStats = ("Rook", 80, 25, 80, 15, 50, 75)
+    STATS_QUEEN: EnemyStats = ("Queen", 100, 80, 60, 90, 300, 100)
+    STATS_KING: EnemyStats = ("King", 300, 50, 20, 20, 100, 85)
+    if room == STATS_JESTER[0].lower():
+        enemy = STATS_JESTER
+    elif room == STATS_PAWN[0].lower():
+        enemy = STATS_PAWN
+    elif room == STATS_KNIGHT[0].lower():
+        enemy = STATS_KNIGHT
+    elif room == "pawn_legion":
+        enemy = STATS_PAWN
+    elif room == STATS_BISHOP[0].lower():
+        enemy = STATS_BISHOP
+    elif room == STATS_ROOK[0].lower():
+        enemy = STATS_ROOK
+    elif room == STATS_QUEEN[0].lower():
+        enemy = STATS_QUEEN
+    elif room == STATS_KING[0].lower():
+        enemy = STATS_KING
+    while not fight_over:
+        if room == "queen":
+            fight_over = enemy_turn(room, enemy, turn)
+        else:
+            fight_over = player_turn(enemy)
+        if room != "queen":
+            fight_over = enemy_turn(room, enemy, turn)
+        turn += 1
+    global health
+    if health > 0:
+        global upgrades
+        if room == "tutorial":
+            upgrades.append("iron shield")
+            input("You received the Iron Shield! Much sturdier than your wooden shield. Can reduce incoming damage for 3 turns instead of 2!")
+            return "tutorial_intersection"
+        elif room == "pawn":
+            upgrades.append("pawn soul") #en passant (reactionary attacks)
+            input("You've collected the soul of the enemy pawn. It increases your Pawn Power, and through the power of En Passant, your attacks now rely on Reaction Speed!")
+            return "knight"
+        elif room == "knight":
+            upgrades.append("knight soul") #widens window of reactionary attack (not actuall necessary bc of linear progression) and ability to choose RNG or reactionary
+            print("You've collected the knight's soul. It increases your accuracy window during Reactionary Attacks, and ")
+            input(" it grants you the ability to choose whether to use them or to rely on RNG attacks.")
+            return "pawn_legion"
+        elif room == "pawn_legion":
+            upgrades.append("legion souls")
+            input(f"You've obtained the souls of enough pawns that your maximum health has increased from {max_health} to {HEALTH_UPGRADE_HEALTH}! You'll need it if you want to survive the stronger opponants ahead.")
+            global max_health
+            max_health = HEALTH_UPGRADE_HEALTH
+            return "shop_intersection"
+        elif room == "bishop":
+            upgrades.append("bishop soul")
+            input("You've collected the bishop's soul. It sharpens your weapons, increasing your damage output.")
+            return "rook"
+        elif room == "rook":
+            upgrades.append("rook soul")
+            input("You've collected the rook's soul. It strengthens your armor, providing you with higher defense from incoming attacks.")
+            return "queen"
+        elif room == "queen":
+            upgrades.append("queen soul")
+            input("You've collected the Queen's soul. It drastically improves your attack, defense, and speed.")
+            input("With this, you should be ready to take on the King.")
+            return "king"
+        elif room == "king":
+            while choice != "talk" and choice != "fight" and choice != "spare" and choice != "kill":
+                choice = input("[TALK] or [FIGHT]. [SPARE] or [KILL]. ").lower()
+            if choice == "talk" or choice == "spare":
+                return "king_spared"
+            else:
+                upgrades.append("king soul")
+                input("You've collected the King's soul.")
+                return "king_dead"
+    else:
+        input("Y O U   D I E D .")
+        choice = input("[RETRY] or [QUIT]? Keep in mind, only health is reset if you [RETRY]. If you want a better run, [QUIT] and start over. ").lower()
+        while choice != "retry":
+            if choice == "quit":
+                input("That's understandable. Good try.")
+                quit_game()
+            choice = input("[RETRY] or [QUIT]? ").lower()
+        global max_health
+        health = max_health
+        return room
+
+def player_turn(enemy: EnemyStats) -> bool:
+    """During a fight, determine player's action each turn."""
+    input() #temp
+
+
+def enemy_turn(room: str, stats: EnemyStats, turn: int) -> bool:
+    """During a fight, determine enemy's action each turn."""
+    input() #temp
+
+
+def enemy_dialogue(room: str, turn: int) -> None:
+    """During a fight, this is called to print enemy dialogue after each turn."""
     #queen says "Haven't you heard? White always goes first!" after attacking first first round
     input() #temp
-    if room == "tutorial":
-        return "tutorial_intersection"
-    elif room == "pawn":
-        return "knight"
-    elif room == "knight":
-        return "pawn_legion"
-    elif room == "pawn_legion":
-        return "shop_intersection"
-    elif room == "bishop":
-        return "rook"
-    elif room == "rook":
-        return "queen"
-    elif room == "queen":
-        return "king"
-    elif room == "king":
-        while choice != "talk" and choice != "fight" and choice != "spare" and choice != "kill":
-            choice = input("[TALK] or [FIGHT]. [SPARE] or [KILL]. ").lower()
-        if choice == "talk" or choice == "spare":
-            return "king_spared"
-        else:
-            return "king_dead"
 
 
 def print_stats() -> None:
