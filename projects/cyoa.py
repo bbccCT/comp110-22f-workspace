@@ -665,6 +665,8 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
             print("[CHECK], ", end="", flush=True)
             if room == "queen":
                 print("[PAY] to distract, ", end="", flush=True)
+            elif room == "rook":
+                print("[APOLOGIZE]", end="", flush=True)
             choice = input("[COMPLIMENT], [MYSTIFY], [TRICK], [INSULT], [FLIRT], [DANCE]? ").lower()
             if choice == "quit":
                 quit_game()
@@ -672,15 +674,15 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
             input() #temp
 
 
-def speed_attack(weapon: str, enemy: EnemyStats, int which_one = 1) -> None:
+def speed_attack(weapon: str, enemy: EnemyStats, which_one: int = 1) -> None:
     input() #temp
 
 
-def rng_attack(weapon: str, enemy: EnemyStats, int which_one = 1) -> None:
+def rng_attack(weapon: str, enemy: EnemyStats, which_one: int = 1) -> None:
     input() #temp
 
 
-def act(room: str, enemy: EnemyStats, int which_one = 1):
+def act(room: str, enemy: EnemyStats, which_one: int = 1):
     input() #temp
 
 
