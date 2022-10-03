@@ -5,6 +5,8 @@ __author__ = "930605992"
 
 import time
 from random import randint
+from typing import overload
+from zoneinfo import available_timezones
 
 
 points: int = 0
@@ -523,6 +525,7 @@ def room_fight(room: str) -> str:
     fight_over: bool = False
     turn: int = 0
     HEALTH_UPGRADE_HEALTH: int = 50
+    who_alive: list[bool] = [True]
     enemy: EnemyStats
     STATS_JESTER: EnemyStats = ("Jester", 50, 15, 20, 999, 30, 50)
     STATS_PAWN: EnemyStats = ("Pawn", 25, 10, 20, 10, 5, 15)
@@ -539,6 +542,7 @@ def room_fight(room: str) -> str:
         enemy = STATS_KNIGHT
     elif room == "pawn_legion":
         enemy = STATS_PAWN
+        who_alive = [True, True, True, True, True, True, True, True]
     elif room == STATS_BISHOP[0].lower():
         enemy = STATS_BISHOP
     elif room == STATS_ROOK[0].lower():
@@ -549,11 +553,11 @@ def room_fight(room: str) -> str:
         enemy = STATS_KING
     while not fight_over:
         if room == "queen":
-            fight_over = enemy_turn(room, enemy, turn)
+            fight_over = enemy_turn(room, enemy, turn, who_alive)
         else:
-            fight_over = player_turn(enemy)
+            fight_over = player_turn(room, enemy, turn, who_alive)
         if room != "queen":
-            fight_over = enemy_turn(room, enemy, turn)
+            fight_over = enemy_turn(room, enemy, turn, who_alive)
         turn += 1
     global health
     if health > 0:
@@ -611,19 +615,122 @@ def room_fight(room: str) -> str:
         health = max_health
         return room
 
-def player_turn(enemy: EnemyStats) -> bool:
+def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> bool:
     """During a fight, determine player's action each turn."""
-    input() #temp
+    global player
+    global upgrades
+    choice: str = ""
+    fight_flavor_text(room, turn, alive)
+    input(f"--{player}'s turn.--")
+    if choice == "fight":
+        use_reactionary_attack: bool = False
+        if "pawn soul" in upgrades and "knight soul" in upgrades:
+            choice = input("Would you like to use a [SPEED]-based attack or [RNG]-based attack? ").lower()
+            while choice != "speed" and choice != "rng":
+                if choice == "quit":
+                    quit_game()
+                choice = input("[SPEED]-based attack, where damage relies on your reflexes, or [RNG]-based attack, where appropriately-balanced random number generators decide damage? ")
+            if choice == "speed":
+                use_reactionary_attack = True
+        elif "pawn soul" in upgrades and "knight soul" not in upgrades:
+            use_reactionary_attack = True
+
+
+def fight_flavor_text(room: str, turn: int, alive: list(bool)) -> None:
+    flavor_texts: list[str] = list()
+    overflow_texts: list[str] = list()
+    if room == "tutorial":
+        flavor_texts.append("JESTER: \"During a tussle, you'll have to choose to use your words, items, or muscles!\"")
+        overflow_texts.append("The Jester makes a beckoning hand gesture.")
+        overflow_texts.append("The Jester is bouncing with excitement.")
+        overflow_texts.append("It's hard to tell if they're holding back or not.")
+        overflow_texts.append("The Jester has a detailed guide on how to win battles. Unfortunately, they left it at home.")
+        overflow_texts.append("The Jester pulls out a deck of cards, then starts juggling all of them, somehow.")
+    elif room == "pawn":
+        flavor_texts.append("This pawn looks determined to put a premature end to your plucky push. Luckily, you're determination outways theirs.")
+        flavor_texts.append("The pawn has only heard heroic tales of one-hit-kills from its superiors... They look a bit shaken now.")
+        flavor_texts.append("They call for backup... but nobody came.")
+        overflow_texts.append("The pawn looks a bit panicked...")
+        overflow_texts.append("The pawn tries to threaten you, but they can't think of what to say.")
+        overflow_texts.append("The pawn looks worried, deep in thought. They're contemplating running away, but can't figure out how that would work.")
+        overflow_texts.append("The pawn doesn't know how to actually fight head-on.")
+        overflow_texts.append("The pawn tries to call out to their comrades again, but nobody came.")
+    elif room == "knight":
+        flavor_texts.append("The knight charges towards you!")
+        overflow_texts.append("The knight gallops towards you!")
+        overflow_texts.append("The knight is running circles around you! Or rather, making L-shaped passes at you!")
+        overflow_texts.append("The knight's horse rears and neighs.")
+        overflow_texts.append("You can faintly hear the knight vocalizing the Batman theme under their breath, which is odd considering they're not a Dark Knight.")
+        overflow_texts.append("Smells like a barn.")
+        overflow_texts.append("The knight's armor shines brilliantly.")
+        overflow_texts.append("The knight looks and acts like a main character... but that's not quite accurate, now is it?")
+    elif room == "pawn_legion":
+        flavor_texts.append("The legion of pawns blocks your way.")
+        flavor_texts.append("The pawns begin to close in.")
+        flavor_texts.append("The mob glares at you.")
+        i: int = randint(1, 8)
+        while alive[i] == False:
+            i = randint(1, 8)
+        overflow_texts.append(f"Pawn {i} gives you a death stare...")
+        overflow_texts.append(f"Pawn {i} vows they will avenge their comrades.")
+        overflow_texts.append(f"Pawn {i} looks tired.")
+        overflow_texts.append(f"Pawn {i} tries to sneakily flank you.")
+        overflow_texts.append(f"Pawn {i} looks about ready to snap.")
+        overflow_texts.append(f"Pawn {i} secretly wants to go home.")
+        overflow_texts.append(f"Pawn {i} lets out a scream of rage.")
+        overflow_texts.append(f"Pawn {i} is crying.")
+        overflow_texts.append(f"Pawn {i} asks you why you're doing this.")
+        overflow_texts.append(f"Pawn {i} practices a mean look in a mirror, then turns to you with the same expression.")
+        overflow_texts.append(f"Pawn {i} secretly thinks you look really cool while you're murdering all of them.")
+        overflow_texts.append(f"Pawn {i} tries to reason with you, asking you to calm down, to stop this madness. You don't listen.")
+    elif room == "bishop":
+        flavor_texts.append("The bishop deigns to block your path.")
+        flavor_texts.append("The bishop, surprised they didn't immediately destory you, begins to look a little annoyed.")
+        flavor_texts.append("The bishop's face scrunches up in disgust after looking at you.")
+        flavor_texts.append("Annoyance turns to a bit of worry.")
+        overflow_texts.append("The bishop seems desperate.")
+        overflow_texts.append("The bishop is panicking a little.")
+        overflow_texts.append("The bishop relies on their superior attack power to end conflicts quickly. This has not ended quickly. They gulp.")
+        overflow_texts.append("The bishop is trying to keep their distance fom you, but the room isn't that large.")
+        overflow_texts.append("BISHOP: \"Why won't you just die already!?!?\"")
+    elif room == "rook":
+        flavor_texts.append("The rook blocks the way.")
+        flavor_texts.append("The rook feels conflicted about attacking such a small pawn.")
+        flavor_texts.append("The rook resolves themself.")
+        overflow_texts.append("The rook braces themself.")
+        overflow_texts.append("The rook grits their teeth.")
+        overflow_texts.append("The rook thinks of those it wants to protect.")
+        overflow_texts.append("The rook ignores the pain.")
+        overflow_texts.append("Smells like a sad movie scene.")
+        overflow_texts.append("The rook appeals to your conscience.")
+    elif room == "queen":
+        flavor_texts.append("QUEEN: \"Haven't you heard? White always goes first!\"\nThe Queen blocks the way.")
+        flavor_texts.append("The Queen is incredibly powerful, but also incredibly greedy... Could you use that to your advantage?")
+        overflow_texts.append("The Queen towers before you.")
+        overflow_texts.append("Imagine an epic boss theme playing.")
+        overflow_texts.append("The Queen is emitting a terrible pressure.")
+        overflow_texts.append("The Queen's onslaught is pushing you back, but you can't stop now!")
+        overflow_texts.append("You strengthen your resolve, pictures of your fallen friends flashing through your mind!")
+        overflow_texts.append("The Queen prepares a gambit.")
+    elif room == "king":
+        global player
+        global user_name
+        flavor_texts.append("The King stands before you.")
+        flavor_texts.append("The King's crown slips down over their brow, covering an eye.")
+        flavor_texts.append(f"KING: \"Do it, then. Kill me. I'm sorry, {player}, truly, I am. Now do it {user_name}. Put an end to this.")
+        flavor_texts.append("The King lets their shoulders relax. They're still fighting, but only to keep you from feeling guilty if you kill them.")
+        overflow_texts.append("The King locks eyes with you.")
+        overflow_texts.append("The King's breathing is labored.")
+        overflow_texts.append("The King smiles weakly.")
+    if turn <= len(flavor_texts):
+        input(flavor_texts[turn - 1])
+    else:
+        i: int = randint(0, len(overflow_texts) - 1)
+        input(overflow_texts[i])
 
 
 def enemy_turn(room: str, stats: EnemyStats, turn: int) -> bool:
     """During a fight, determine enemy's action each turn."""
-    input() #temp
-
-
-def enemy_dialogue(room: str, turn: int) -> None:
-    """During a fight, this is called to print enemy dialogue after each turn."""
-    #queen says "Haven't you heard? White always goes first!" after attacking first first round
     input() #temp
 
 
