@@ -622,7 +622,20 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
     choice: str = ""
     fight_flavor_text(room, turn, alive)
     input(f"--{player}'s turn.--")
+    print("What will you do?")
+    while choice != "fight" and choice != "act" and choice != "item":
+        choice = input("[FIGHT], [ACT], [ITEM], [QUIT]? ").lower()
+        if choice == "quit":
+            quit_game()
     if choice == "fight":
+        weapon: str = ""
+        print("What weapon would you like to use?")
+        while weapon != "sword" and weapon != "dagger" and weapon != "bow" and weapon != "knife":
+            weapon = input("[SWORD], [DAGGER], [BOW]").lower()
+            if weapon == "quit":
+                quit_game()
+        if weapon == "knife":
+            weapon = "dagger"
         use_reactionary_attack: bool = False
         if "pawn soul" in upgrades and "knight soul" in upgrades:
             choice = input("Would you like to use a [SPEED]-based attack or [RNG]-based attack? ").lower()
@@ -634,6 +647,29 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
                 use_reactionary_attack = True
         elif "pawn soul" in upgrades and "knight soul" not in upgrades:
             use_reactionary_attack = True
+        if use_reactionary_attack:
+            speed_attack(weapon, enemy)
+        else:
+            rng_attack(weapon, enemy)
+    elif choice == "act":
+        print("What would you like to do?")
+        while choice != "check" and choice != "pay" and choice != "compliment" and choice != "mystify" and choice != "trick" and choice != "insult" and choice != "flirt" and choice != "dance":
+            if room != "queen":
+                choice = input("[CHECK], [COMPLIMENT], [MYSTIFY], [TRICK], [INSULT], [FLIRT], [DANCE]? ")
+            else:
+                choice = input("[CHECK], [PAY] to distract, [COMPLIMENT], [MYSTIFY], [TRICK], [INSULT], [FLIRT], [DANCE]? ")
+            if choice == "quit":
+                quit_game()
+        if choice == "check":
+            input() #temp
+
+
+def speed_attack(weapon: str, enemy: EnemyStats) -> None:
+    input() #temp
+
+
+def rng_attack(weapon: str, enemy: EnemyStats) -> None:
+    input() #temp
 
 
 def fight_flavor_text(room: str, turn: int, alive: list(bool)) -> None:
