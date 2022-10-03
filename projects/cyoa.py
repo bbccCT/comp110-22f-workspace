@@ -652,23 +652,35 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
         else:
             rng_attack(weapon, enemy)
     elif choice == "act":
+        if len(alive) > 1:
+            print("Which one? ", end="", flush=True)
+            i: int = 1
+            while i <= len(alive):
+                if alive[i] == True:
+                    print(f"[{i}] ", end="", flush=True)
+            #while != valid num
+
         print("What would you like to do?")
         while choice != "check" and choice != "pay" and choice != "compliment" and choice != "mystify" and choice != "trick" and choice != "insult" and choice != "flirt" and choice != "dance":
-            if room != "queen":
-                choice = input("[CHECK], [COMPLIMENT], [MYSTIFY], [TRICK], [INSULT], [FLIRT], [DANCE]? ")
-            else:
-                choice = input("[CHECK], [PAY] to distract, [COMPLIMENT], [MYSTIFY], [TRICK], [INSULT], [FLIRT], [DANCE]? ")
+            print("[CHECK], ", end="", flush=True)
+            if room == "queen":
+                print("[PAY] to distract, ", end="", flush=True)
+            choice = input("[COMPLIMENT], [MYSTIFY], [TRICK], [INSULT], [FLIRT], [DANCE]? ").lower()
             if choice == "quit":
                 quit_game()
         if choice == "check":
             input() #temp
 
 
-def speed_attack(weapon: str, enemy: EnemyStats) -> None:
+def speed_attack(weapon: str, enemy: EnemyStats, int which_one = 1) -> None:
     input() #temp
 
 
-def rng_attack(weapon: str, enemy: EnemyStats) -> None:
+def rng_attack(weapon: str, enemy: EnemyStats, int which_one = 1) -> None:
+    input() #temp
+
+
+def act(room: str, enemy: EnemyStats, int which_one = 1):
     input() #temp
 
 
