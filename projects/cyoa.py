@@ -5,8 +5,6 @@ __author__ = "930605992"
 
 import time
 from random import randint
-from typing import overload
-from zoneinfo import available_timezones
 
 
 points: int = 0
@@ -17,9 +15,9 @@ max_health: int = 25
 health: int = max_health
 speed: int = 10
 room_id: str = "tutorial"
-met_jester: bool = False;
+met_jester: bool = False
+enemy_distracted: bool = False
 upgrades: list[str] = list()
-# other vars like for items and stuff im tired
 temp_item_buffs_ADS: list[int] = [0, 0, 0] #attack buff, defense buff, shield active or not
 shield_lvl: int = 1
 hp_potions: int = 5
@@ -661,15 +659,47 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
             #while != valid num
 
         print("What would you like to do?")
-        while choice != "check" and choice != "pay" and choice != "compliment" and choice != "mystify" and choice != "trick" and choice != "insult" and choice != "flirt" and choice != "dance":
+        while choice != "check" and choice != "pay" and choice != "apologize" and choice != "compliment" and choice != "mystify" and choice != "trick" and choice != "insult" and choice != "flirt" and choice != "dance":
+            global enemy_distracted
             print("[CHECK], ", end="", flush=True)
             if room == "queen":
                 print("[PAY] to distract, ", end="", flush=True)
             elif room == "rook":
                 print("[APOLOGIZE]", end="", flush=True)
+            elif room == "bishop":
+                print("[FLATTER]", end="", flush=True)
             choice = input("[COMPLIMENT], [MYSTIFY], [TRICK], [INSULT], [FLIRT], [DANCE]? ").lower()
             if choice == "quit":
                 quit_game()
+            if room != "queen" and choice == "pay":
+                choice = ""
+                input("This enemy isn't greedy enough to be distracted by money, nor disloyal enough to take a bribe.")
+            elif room == "queen" and choice == "pay":
+                global gold
+                payment = randint(5, 20)
+                if gold < payment:
+                    payment = gold
+                if gold > 0:
+                    gold -= payment
+                    input("You toss {payment}G on the ground! The Queen's greed blinds her! She will be distracted (easier to hit and does less damage) next turn. {gold}G left!")
+                    enemy_distracted = True
+                else:
+                    input("You don't have enough gold! You've run out!")
+                    choice = ""
+                    enemy_distracted = False
+            elif room == "queen" and choice != "pay":
+                enemy_distracted = False
+            if room != "rook" and choice == "apologize":
+                choice = ""
+                input("The enemy doesn't listen and doesn't care when you try to apologize.")
+            elif room == "rook" and choice == "apologize":
+                input("The rook hesitates for a moment, touched by your words. They consider the possibility you could change and stop killing people on a rampage of revenge.")
+                input("They will be distracted (easier to hit and does less damage) next turn.")
+                enemy_distracted = True
+            elif room == "rook" and choice != "apologize":
+                if enemy_distracted:
+                    input("The rook resolves themself. They are no longer distracted!")
+                enemy_distracted = False
         if choice == "check":
             input() #temp
 
