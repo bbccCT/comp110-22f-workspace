@@ -708,10 +708,11 @@ def check_info(room: str, enemy: EnemyStats, which: int = 1):
         print(f" {which}. ", end="", flush=True)
     else:
         print(f". ", end="", flush=True)
+    input(f"HP: {enemy[1]}. Attack: {enemy[2]}. Defense: {enemy[3]}. Speed:{enemy[4]}.")
     if room == "tutorial":
         input("An eccentric yet experienced wild card. Has a great sense of humor, but also only speaks in rhymes.")
         input("They seem to just be a nice person, willing to train whoever asks nicely. How nice of them to help you practice! They seem like a fairly normal person.")
-        input("They have a... broadsword. (Wow, that's... a bit more extreme than I expected.)")
+        input("They have a... broadsword. (Wow, that's... a bit more extreme than I expected.)", end="", flush=True)
         input("...And a dagger. (Wow, they're almost as armed as you!)")
         input("It also appears...", end="", flush=True)
         input(" they have some magic?!")
@@ -724,9 +725,26 @@ def check_info(room: str, enemy: EnemyStats, which: int = 1):
         input(f"All of this might be true, but only one thing matters to {player} right now...")
         input("They're an enemy. And they're in your way.")
     elif room == "knight":
-        input("")
+        input("A mobile flanker of the White Side that excels in limiting their opponent's options in a variety of directions from horseback.")
+        input("Also somewhat arrogant, looking down on less nimble classes, especially pawns.")
+        input("They're darting around you, landing sneaky blows; it's hard to return them. They seem to be changing up their attack style every hit.")
     elif room == "pawn_legion":
-        input("")
+        if which == 1:
+            input()
+        if which == 2:
+            input()
+        if which == 3:
+            input()
+        if which == 4:
+            input()
+        if which == 5:
+            input()
+        if which == 6:
+            input()
+        if which == 7:
+            input()
+        if which == 8:
+            input()
     elif room == "bishop":
         input("")
     elif room == "rook":
