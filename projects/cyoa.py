@@ -625,7 +625,9 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
         choice = input("[FIGHT], [ACT], [ITEM], [QUIT]? ").lower()
         if choice == "quit":
             quit_game()
+    which: int = 1
     if choice == "fight":
+        which = choose_enemy(alive)
         weapon: str = ""
         print("What weapon would you like to use?")
         while weapon != "sword" and weapon != "dagger" and weapon != "bow" and weapon != "knife":
@@ -640,7 +642,7 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
             while choice != "speed" and choice != "rng":
                 if choice == "quit":
                     quit_game()
-                choice = input("[SPEED]-based attack, where damage relies on your reflexes, or [RNG]-based attack, where appropriately-balanced random number generators decide damage? ")
+                choice = input("[SPEED]-based attack, where damage relies on your reflexes, or [RNG]-based attack, where appropriately-balanced random number generators decide damage? ").lower()
             if choice == "speed":
                 use_reactionary_attack = True
         elif "pawn soul" in upgrades and "knight soul" not in upgrades:
@@ -650,14 +652,7 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
         else:
             rng_attack(weapon, enemy)
     elif choice == "act":
-        if len(alive) > 1:
-            print("Which one? ", end="", flush=True)
-            i: int = 1
-            while i <= len(alive):
-                if alive[i] == True:
-                    print(f"[{i}] ", end="", flush=True)
-            #while != valid num
-
+        which = choose_enemy(alive)
         print("What would you like to do?")
         while choice != "check" and choice != "pay" and choice != "apologize" and choice != "compliment" and choice != "mystify" and choice != "trick" and choice != "insult" and choice != "flirt" and choice != "dance":
             global enemy_distracted
@@ -702,7 +697,68 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
                     input("The rook resolves themself. They are no longer distracted!")
                 enemy_distracted = False
         if choice == "check":
-            input() #temp
+            check_info(room, enemy, which)
+
+
+def check_info(room: str, enemy: EnemyStats, which: int = 1):
+    global player
+    input("You examine the enemy.")
+    print(f"{enemy[0]}", end="", flush=True)
+    if room == "pawn_legion":
+        print(f" {which}. ", end="", flush=True)
+    else:
+        print(f". ", end="", flush=True)
+    if room == "tutorial":
+        input("An eccentric yet experienced wild card. Has a great sense of humor, but also only speaks in rhymes.")
+        input("They seem to just be a nice person, willing to train whoever asks nicely. How nice of them to help you practice! They seem like a fairly normal person.")
+        input("They have a... broadsword. (Wow, that's... a bit more extreme than I expected.)")
+        input("...And a dagger. (Wow, they're almost as armed as you!)")
+        input("It also appears...", end="", flush=True)
+        input(" they have some magic?!")
+        input("Okay, so maybe not such a normal person. Still nice, though.")
+        input("Oh, and they're attacking you now.")
+    elif room == "pawn":
+        input("A standard troop of the White Side. They usually rely on strength in numbers, but this one is confident in themself.")
+        input("They're looking forward to hopefully getting a promotion soon.")
+        input("They seem unsure of how to actually fight effectively, though...")
+        input(f"All of this might be true, but only one thing matters to {player} right now...")
+        input("They're an enemy. And they're in your way.")
+    elif room == "knight":
+        input("")
+    elif room == "pawn_legion":
+        input("")
+    elif room == "bishop":
+        input("")
+    elif room == "rook":
+        input("")
+    elif room == "queen":
+        input("")
+    elif room == "king":
+        input("")
+
+
+def choose_enemy(alive: list(bool)) -> int:
+    if len(alive) > 1:
+        print("Which one? ", end="", flush=True)
+        i: int = 1
+        while i <= len(alive):
+            if alive[i] == True:
+                print(f"[{i}]", end="", flush=True)
+            if i < len(alive):
+                print(", ", end="", flush=True)
+        which = input("? ")
+    enemy_valid: bool = False
+    while not enemy_valid:
+        try:
+            int(which)
+            i: int = 1
+            while i <= len(alive):
+                if alive[i] == True:
+                    enemy_valid = True
+        except ValueError:
+            which = input("That's not even a number. Which? ").lower()
+        if not enemy_valid:
+            which = input("Which? ").lower()
 
 
 def speed_attack(weapon: str, enemy: EnemyStats, which_one: int = 1) -> None:
