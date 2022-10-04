@@ -681,7 +681,7 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
                     payment = gold
                 if gold > 0:
                     gold -= payment
-                    input("You toss {payment}G on the ground! The Queen's greed blinds her! She will be distracted (easier to hit and does less damage) next turn. {gold}G left!")
+                    input("You toss {payment}G on the ground! The Queen's greed blinds them! They will be distracted (easier to hit and does less damage) next turn. {gold}G left!")
                     enemy_distracted = True
                 else:
                     input("You don't have enough gold! You've run out!")
@@ -692,9 +692,10 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
             if room != "rook" and choice == "apologize":
                 choice = ""
                 input("The enemy doesn't listen and doesn't care when you try to apologize.")
+                enemy_distracted = False
             elif room == "rook" and choice == "apologize":
                 input("The rook hesitates for a moment, touched by your words. They consider the possibility you could change and stop killing people on a rampage of revenge.")
-                input("They will be distracted (easier to hit and does less damage) next turn.")
+                input("They will be distracted (easier to hit and does less damage) until next turn.")
                 enemy_distracted = True
             elif room == "rook" and choice != "apologize":
                 if enemy_distracted:
