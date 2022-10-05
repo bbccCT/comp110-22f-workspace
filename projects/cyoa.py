@@ -654,15 +654,13 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
     elif choice == "act":
         which = choose_enemy(alive)
         print("What would you like to do?")
+        global enemy_distracted
         while choice != "check" and choice != "pay" and choice != "apologize" and choice != "compliment" and choice != "mystify" and choice != "trick" and choice != "insult" and choice != "flirt" and choice != "dance":
-            global enemy_distracted
             print("[CHECK], ", end="", flush=True)
             if room == "queen":
                 print("[PAY] to distract, ", end="", flush=True)
             elif room == "rook":
                 print("[APOLOGIZE]", end="", flush=True)
-            elif room == "bishop":
-                print("[FLATTER]", end="", flush=True)
             choice = input("[COMPLIMENT], [MYSTIFY], [TRICK], [INSULT], [FLIRT], [DANCE]? ").lower()
             if choice == "quit":
                 quit_game()
@@ -697,10 +695,12 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
                     input("The rook resolves themself. They are no longer distracted!")
                 enemy_distracted = False
         if choice == "check":
-            check_info(room, enemy, which)
+            act_check_info(room, enemy, which)
+        elif choice == "compliment":
+            enemy_distracted = act_compliment(room, enemy, which)
 
 
-def check_info(room: str, enemy: EnemyStats, which: int = 1):
+def act_check_info(room: str, enemy: EnemyStats, which: int = 1) -> None:
     global player
     global points
     input("You examine the enemy.")
@@ -770,6 +770,48 @@ def check_info(room: str, enemy: EnemyStats, which: int = 1):
         input("It won't take long. After claiming the Queen's soul, your power has increased significantly.")
 
 
+def act_compliment(room: str, enemy: EnemyStats, which: int = 1) -> bool:
+    print("You praise and flatter ", end="", flush=True)
+    if room == "pawn_legion":
+        input(f"{enemy[0]} {which}.")
+    else:
+        input(f"the {enemy[0]}.")
+    i: int = randint(0,2)
+    if i == 0 and room != "bishop":
+        input("Sadly, it has no effect this time; the enemy seems unfazed.") #in flirt, cause enemy to get small attack of opportunity on fail
+        return False
+    elif i == 1:
+        input("The compliment somehow lands. They thank you, a bit puzzled.")
+        input("Confused and hesitant, they accidentally give you an extra opportunity to do something!") #if there's time, add a mini attack of opportunity here instead of returning true
+        return True
+    elif i == 2:
+        input("The enemy is flattered! They're temporarily distracted!")
+        return True
+    elif room == "bishop":
+        input("The bishop's ego is somehow inflated even more.")
+        return True
+
+
+def act_flirt(room: str, enemy: EnemyStats, which: int = 1) -> bool:
+    input() #temp
+
+
+def act_mystify(room: str, enemy: EnemyStats, which: int = 1) -> bool:
+    input() #temp
+
+
+def act_insult(room: str, enemy: EnemyStats, which: int = 1) -> bool:
+    input() #temp
+
+
+def act_trick(room: str, enemy: EnemyStats, which: int = 1) -> bool:
+    input() #temp
+
+
+def act_dance(room: str, enemy: EnemyStats, which: int = 1) -> bool:
+    input() #temp
+
+
 def choose_enemy(alive: list(bool)) -> int:
     if len(alive) > 1:
         print("Which one? ", end="", flush=True)
@@ -799,10 +841,6 @@ def speed_attack(weapon: str, enemy: EnemyStats, which_one: int = 1) -> None:
 
 
 def rng_attack(weapon: str, enemy: EnemyStats, which_one: int = 1) -> None:
-    input() #temp
-
-
-def act(room: str, enemy: EnemyStats, which_one: int = 1):
     input() #temp
 
 
