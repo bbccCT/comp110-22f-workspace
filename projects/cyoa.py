@@ -702,6 +702,7 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> b
 
 def check_info(room: str, enemy: EnemyStats, which: int = 1):
     global player
+    global points
     input("You examine the enemy.")
     print(f"{enemy[0]}", end="", flush=True)
     if room == "pawn_legion":
@@ -730,29 +731,43 @@ def check_info(room: str, enemy: EnemyStats, which: int = 1):
         input("They're darting around you, landing sneaky blows; it's hard to return them. They seem to be changing up their attack style every hit.")
     elif room == "pawn_legion":
         if which == 1:
-            input()
+            input("This pawn seems quite serious. Their face is set with a determined glint in their eye and a furrowed brow.")
         if which == 2:
-            input()
+            input("Seems bored. They hold their weapon loosely and their eyes wander. Even if their thrusts are half-hearted, though, they're still stabbing at you.")
         if which == 3:
-            input()
+            input("Vibrating on the spot. They look eager to fight you and gleefully violent. A wide grin is plastered on their face.")
         if which == 4:
-            input()
+            input("Quietly observing you, but their eyes are filled with hatred. They're out for revenge, but they're being methodical about it, collecting information between attacks.")
         if which == 5:
-            input()
+            input("Looks a bit conflicted, an expression of resignation on their face. They kind of want to reason with you, to talk it out, but knows they can't. They know they must fight.")
         if which == 6:
-            input()
+            input("This one is being incredibly loud. They look somehow both surprised and furious, attacking with wild, reckless abandon.")
         if which == 7:
-            input()
+            input("An absolute idiot. Just a complete and utter imbecile. Looks like they enjoy fighting. Tries to act like how they think a stereotypical soldier might act.")
         if which == 8:
-            input()
+            input("Quiet. Reserved. Who knows what they're thinking?")
+            input("(Me. I do. I'm the narrator, and what I say is law, but YOU don't get to know. The secrets of the universe that I made up just now will remain a mystery to you!)")
     elif room == "bishop":
-        input("")
+        input("A haughty elite member of the White Side. This religious leader looks down on pieces of lower classes as well as on all who oppose the White Side.")
+        input("Capable of devastating, pinpoint attacks, but extremely fragile due to a weak constitution and not having had to do much of anything all their life.")
     elif room == "rook":
-        input("")
+        input("A steadfast guard for the White Side. Actually quite compassionate. Not the most perceptive sometimes, but dead set on protecting those they care about.")
+        input("Their sturdy stance and style plus their tough armor give them a hefty advantage in terms of defending, but they suffer for it in speed.")
+        input("Loyal to their side and acts heroic if needed. Their strong sense of justice could be used to your advantage.")
     elif room == "queen":
-        input("")
+        input("A monarch of the White Side. Incredibly intimidating, standing tall and proud. Confident in their ability to crush you.")
+        input("A multifaceted powerhouse, they excel in all areas, proving to be a vicious foe.")
+        input("Also quite greedy. You can use that to your advantage if she's proving too tough.")
     elif room == "king":
-        input("")
+        input("The leader of the White Side.")
+        input("Majestic, calm, and tired. They can take a lot of damage, but usually doesn't have to. They can deal some damage, but usually doesn't want to.")
+        input("They don't want to have to fight you. They never wanted war.")
+        i: int = randint(0,2)
+        if i == 0:
+            global user_name
+            input(f"But something has brought you two together. Call it fate. Call it {user_name}. And now, the fight continues.")
+        input("Perhaps there is a way to end this... differently. Perhaps... once you have sufficiently weakened him.")
+        input("It won't take long. After claiming the Queen's soul, your power has increased significantly.")
 
 
 def choose_enemy(alive: list(bool)) -> int:
@@ -810,6 +825,8 @@ def fight_flavor_text(room: str, turn: int, alive: list(bool)) -> None:
         overflow_texts.append("The pawn looks worried, deep in thought. They're contemplating running away, but can't figure out how that would work.")
         overflow_texts.append("The pawn doesn't know how to actually fight head-on.")
         overflow_texts.append("The pawn tries to call out to their comrades again, but nobody came.")
+        overflow_texts.append("The pawn stutters but managers to announce that they, Gary the Bold and Mighty and Incredibly Smart, will put a stop to you!")
+        overflow_texts.append("A drop of sweat rolls down the pawn's face.")
     elif room == "knight":
         flavor_texts.append("The knight charges towards you!")
         overflow_texts.append("The knight gallops towards you!")
