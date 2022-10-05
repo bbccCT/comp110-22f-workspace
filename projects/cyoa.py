@@ -660,9 +660,9 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> N
         elif "pawn soul" in upgrades and "knight soul" not in upgrades:
             use_reactionary_attack = True
         if use_reactionary_attack:
-            speed_attack(weapon, enemy)
+            speed_attack(weapon, enemy, which, room, turn, alive)
         else:
-            rng_attack(weapon, enemy)
+            rng_attack(weapon, enemy, which, room, turn, alive)
     elif choice == "act":
         which = choose_enemy(alive)
         print("What would you like to do?")
@@ -882,12 +882,60 @@ def choose_enemy(alive: list(bool)) -> int:
             which = input("Which? ").lower()
 
 
-def speed_attack(weapon: str, enemy: EnemyStats, which_one: int = 1) -> None:
+def speed_attack(weapon: str, enemy: EnemyStats, which: int = 1) -> None:
     input() #temp
 
 
-def rng_attack(weapon: str, enemy: EnemyStats, which_one: int = 1) -> None:
-    input() #temp
+def rng_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int, alive: list(bool)) -> None:
+    lowest_dmg: int = 0
+    highest_dmg: int = 10
+    if weapon == "sword":
+        input("You swing your sword!")
+        lowest_dmg = 3
+        highest_dmg = 9
+    elif weapon == "dagger":
+        input("You slash your dagger!")
+        lowest_dmg = 0
+        highest_dmg = 12
+    elif weapon == "bow":
+        global arrows_ready
+        global arrows_quiver
+        if arrows_ready == 0 and arrows_quiver == 0:
+            input("You don't have any arrows left!")
+            return player_turn(room, enemy, turn, alive)
+        elif arrows_ready == 0:
+            input("You need to draw more arrows!")
+            return player_turn(room, enemy, turn, alive)
+        else:
+            input("You fire an arrow!")
+        lowest_dmg = -2
+        highest_dmg = 15
+    damage: int = randint(lowest_dmg, highest_dmg)
+    if weapon == "bow" and enemy[4] >= 50:
+        damage -= 1
+    global temp_item_buffs_ADS
+    global upgrades
+    if temp_item_buffs_ADS[0] > 0:
+        damage += randint(3, 8)
+    if "bishop soul" in upgrades:
+        damage += 2
+    if "queen soul" in upgrades:
+        damage += 4
+    if weapon == "bow" and damage < 5:
+        damage = 0
+    if enemy[3] >= 50:
+        damage -= 3
+    elif enemy[3] >= 25:
+        damage -= 2
+    elif enemy[3] >= 10:
+        damage -= 1
+    input(f"{damage} damage!")
+    if damage == 0:
+        input("Miss!")
+    elif damage >= highest_dmg - 1:
+        input("Critical hit!")
+    global enemy_current_health
+    enemy_current_health[which] -= damage
 
 
 def attack_of_opportunity(who_attacking: str, enemy_attack: int, enemy_defense: int, which: int) -> None:
@@ -908,7 +956,7 @@ def attack_of_opportunity(who_attacking: str, enemy_attack: int, enemy_defense: 
             damage += 3
         elif enemy_defense < 25:
             damage += 2
-        elif enemy_attack < 50:
+        elif enemy_defense < 50:
             damage += 1
         global temp_item_buffs_ADS
         global upgrades
@@ -925,6 +973,10 @@ def attack_of_opportunity(who_attacking: str, enemy_attack: int, enemy_defense: 
         if damage == 0:
             input("Miss!")
         enemy_current_health[which] -= damage
+
+
+def enemy_attack(room: str, enemy: EnemyStats):
+    input() #temp
 
 
 def take_damage(damage: int, weapon: str = "Default") -> None:
