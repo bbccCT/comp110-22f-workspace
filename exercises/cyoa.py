@@ -56,6 +56,7 @@ def main() -> None:
 def greet() -> None:
     """Begin the game with instructions and lore, and input names."""
     global points
+    print("Welcome!")
     input("(When lines of text not requiring input appear, press the ENTER key to progress after reading.)")
     print("(Good. Now, when input is required, options such as [FIGHT] or [TALK] will be included")
     choice: str = input("  and you should type one of them (minus the brackets) (not case sensitive), [OKAY]?) ")
