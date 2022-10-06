@@ -31,6 +31,7 @@ defense_up_ointment: int = 0
 ItemPrice = tuple[str, int, str]  # Name, Price, Extra space if needed
 EnemyStats = tuple[str, int, int, int, int, int, int]  # Name, Health, Attack, Defense, Speed (inverse to Accuracy Window if have reaction attack upgrade), G on kill, points on win
 enemy_current_health: list[int] = list()
+who_alive: list[bool] = [True]
 
 U_PLAYR: str = "\U0000265F"
 U_BOX_G: str = "\U0001F7E9"
@@ -60,15 +61,19 @@ def greet() -> None:
     global player
     input("(When lines of text not requiring input appear, press the ENTER key to progress after reading.)")
     print("(Good. Now, when input is required, options such as [FIGHT] or [TALK] will be included")
-    choice: str = input("  and you should type one of them (minus the brackets) (not case sensitive), [OKAY]?) ")
+    choice: str = input("  and you should type one of them (minus the brackets) (not case sensitive), [OKAY]?) ").lower()
     # while choice != "okay":
     #     choice = input("(So if the option you want to select is [OKAY], you can type \"okay\", [OKAY]?) ").lower()
-    choice = input("(So if the option you want to select is [OKAY], you can type \"okay\", [OKAY]?) ").lower()
     if choice == "okay":
-        input("Great! Thank you for listening.")
-        points += 5
+        input("(Great! Thank you for listening.)")
+        points += 10
     else:
-        input("Um... that's not exactly an \"okay\", but it'll do for now.")
+        choice = input("(So if the option you want to select is [OKAY], you can type \"okay\", [OKAY]?) ").lower()
+        if choice == "okay":
+            input("(Nice! Thanks for listening.)")
+            points += 5
+        else:
+            input("(Um... that's not exactly an \"okay\", but it'll do for now.)")
     input("(Sometimes, though, a hidden option you might have used in the past can be available, even if not listed, so type wisely...)")
     input("(And now that the controls have been introduced...)")
     input("(On with the show.)")
@@ -88,7 +93,7 @@ def greet() -> None:
     input(f"And the hero's name... was {player}.")
     print(f"Welcome, {player}!")
     global user_name
-    input("And what of the user?")
+    print("But what of the user?")
     user_name = input("What is your name? ")
     while not user_name:
         user_name = input("(Really? Don't detract from the experience. What is your real name?) ")
@@ -534,11 +539,14 @@ def room_dialogue(room: str) -> str:
 
 def room_fight(room: str) -> str:
     """Begin a fight with the proper character."""
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    input("FIGHT!")
     choice: str = ""
-    turn: int = 0
+    turn: int = 1
     HEALTH_UPGRADE_HEALTH: int = 60
     global max_health
-    who_alive: list[bool] = [True]
+    global who_alive
+    who_alive = [True]
     enemy: EnemyStats
     STATS_JESTER: EnemyStats = ("Jester", 50, 15, 20, 99, 30, 50)
     STATS_PAWN: EnemyStats = ("Pawn", 25, 10, 20, 10, 5, 15)
@@ -547,7 +555,7 @@ def room_fight(room: str) -> str:
     STATS_ROOK: EnemyStats = ("Rook", 80, 25, 80, 15, 50, 75)
     STATS_QUEEN: EnemyStats = ("Queen", 100, 80, 60, 90, 300, 100)
     STATS_KING: EnemyStats = ("King", 300, 50, 20, 20, 100, 85)
-    if room == STATS_JESTER[0].lower():
+    if room == "tutorial":
         enemy = STATS_JESTER
     elif room == STATS_PAWN[0].lower():
         enemy = STATS_PAWN
@@ -583,6 +591,15 @@ def room_fight(room: str) -> str:
         turn += 1
     if health > 0:
         global upgrades
+        global points
+        global gold
+        points += enemy[5]
+        gold += enemy[6]
+        if room != "pawn_legion":
+            input(f"Congratulations! You've defeated the {enemy[0]}!")
+        else:
+            input(f"Congratulations! You've defeated the legion of pawns!")
+        input(f"You earned {enemy[6]}G!")
         if room == "tutorial":
             upgrades.append("iron shield")
             input("You received the Iron Shield! Much sturdier than your wooden shield. Can reduce incoming damage for 3 turns instead of 2!")
@@ -760,10 +777,9 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list[bool]) -> N
                 i = randint(0, len(talk_king) - 1)
                 input(talk_king[i])
     elif choice == "item":
-        print_stats()
         global temp_item_buffs_ADS
         while choice != "shield" and choice != "hp pot" and choice != "quiver" and choice != "poisoned arrows" and choice != "atk scroll" and choice != "def ointment" and choice != "cancel":
-            choice = input("What item would you like to use? [SHIELD], [HP POT], [QUIVER], [POISONED ARROWS], [ATK SCROLL], [DEF OINTMENT], or [CANCEL]?").lower()
+            choice = input("What item would you like to use? [SHIELD], [HP POT], [QUIVER], [POISONED ARROWS], [ATK SCROLL], [DEF OINTMENT], or [CANCEL]? ").lower()
             if choice == "cancel" or choice == "back":
                 return player_turn(room, enemy, turn, alive)
         global arrows_ready
@@ -779,12 +795,16 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list[bool]) -> N
             global max_health
             global health
             global hp_potions
+            if hp_potions <= 0:
+                return player_turn(room, enemy, turn, alive)
             input("You drink a health potion.")
             i = randint(12, 40)
             healing: int = int((i * 0.01) * max_health)
             input(f"{healing} health regained!")
             if i > 35:
                 input("Critical healing!")
+            if i > 30:
+                input("It's ambrosial.")
             elif i <= 20:
                 input("The enemy startled you, and you dropped the potion mid-chug!")
             elif i > 20 and i <= 25:
@@ -792,16 +812,28 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list[bool]) -> N
             elif i > 25 and i <= 30:
                 input("The potion tastes... decent. But it's the effect that matters!")
                 input("The effect is also just okay.")
-            if i > 30:
-                input("It's ambrosial.")
             health += healing
+            if health >= max_health:
+                health = max_health
+                i = randint(0,2)
+                print("HP fully restored.")
+                if i == 0:
+                    input("Good as new!")
+                elif i == 1:
+                    input("You're all healed up!")
+                else:
+                    input("You feel refreshed!")
             hp_potions -= 1
         elif choice == "quiver":
-            input("You draw 4 arrows out of your quiver.")
             global arrows_quiver
+            if arrows_quiver == 0:
+                return player_turn(room, enemy, turn, alive)
             arrows_transferred: int = 4 - arrows_ready
+            if arrows_quiver < 4:
+                arrows_transferred = arrows_quiver
             arrows_quiver -= arrows_transferred
-            arrows_ready = 4
+            arrows_ready += arrows_transferred
+            input(f"You draw {arrows_transferred} arrows out of your quiver.")
             using_poisoned_arrows = False
         elif choice == "poisoned arrows":
             global poisoned_arrow_bunch
@@ -825,7 +857,7 @@ def act_check_info(room: str, enemy: EnemyStats, which: int = 1) -> None:
         print(f" {which}. ", end="", flush=True)
     else:
         print(". ", end="", flush=True)
-    input(f"HP: {enemy_current_health[which - 1]}. Attack: {enemy[2]}. Defense: {enemy[3]}. Speed:{enemy[4]}.")
+    input(f"HP: {enemy_current_health[which - 1]}/{enemy[1]}. Attack: {enemy[2]}. Defense: {enemy[3]}. Speed: {enemy[4]}.")
     if room == "tutorial":
         input("An eccentric yet experienced wild card. Has a great sense of humor, but also only speaks in rhymes.")
         input("They seem to just be a nice person, willing to train whoever asks nicely. How nice of them to help you practice! They seem like a fairly normal person.")
@@ -1006,7 +1038,7 @@ def act_insult(room: str, enemy: EnemyStats, which: int = 1) -> bool:
             i = randint(1, 4)
             input(f"{i} damage!")
             global enemy_current_health
-            enemy_current_health[which] -= i
+            enemy_current_health[which - 1] -= i
         input("They will still be a bit distracted as they calm down.")
         return True
 
@@ -1059,6 +1091,8 @@ def act_dance(room: str, enemy: EnemyStats, which: int = 1) -> bool:
 def choose_enemy(alive: list[bool]) -> int:
     """During a battle with multiple enemies, this allows the player to choose which enemy to target."""
     i: int = 1
+    which: str = "1"
+    enemy_valid: bool = True
     if len(alive) > 1:
         print("Which one? ", end="", flush=True)
         i = 1
@@ -1068,18 +1102,18 @@ def choose_enemy(alive: list[bool]) -> int:
             if i < len(alive):
                 print(", ", end="", flush=True)
         which = input("? ")
-    enemy_valid: bool = False
-    while not enemy_valid:
-        try:
-            int(which)
-            i = 1
-            while i <= len(alive):
-                if alive[i]:
-                    enemy_valid = True
-        except ValueError:
-            which = input("That's not even a number. Which? ").lower()
-        if not enemy_valid:
-            which = input("Which? ").lower()
+        enemy_valid = False
+        while not enemy_valid:
+            try:
+                int(which)
+                i = 1
+                while i <= len(alive):
+                    if alive[i]:
+                        enemy_valid = True
+            except ValueError:
+                which = input("That's not even a number. Which? ").lower()
+            if not enemy_valid:
+                which = input("Which? ").lower()
     return int(which)
 
 
@@ -1092,13 +1126,13 @@ def speed_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: in
     delay: list[float] = [3, 0.2, 1]  # Before, crit window, miss threshold
     if weapon == "sword":
         input("Get ready to swing your sword!")
-        lowest_dmg = 3
+        lowest_dmg = 4
         highest_dmg = 9
         delay[0] = uniform(3, 4)
         delay[2] += (1 - enemy[4] * 0.01) + 1
     elif weapon == "dagger":
         input("You ready your dagger!")
-        lowest_dmg = 0
+        lowest_dmg = 1
         highest_dmg = 12
         delay[0] = uniform(1, 2)
         delay[2] += (1 - enemy[4] * 0.01) + 0.2
@@ -1148,7 +1182,7 @@ def speed_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: in
         damage = int(damage_highest_zeroed * time_standardized + lowest_dmg)
     global enemy_distracted
     if enemy_distracted:
-        damage += 1
+        damage += 2
     if weapon == "bow" and enemy[4] >= 50:
         damage -= 1
     global temp_item_buffs_ADS
@@ -1168,13 +1202,19 @@ def speed_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: in
         damage -= 2
     elif enemy[3] >= 10:
         damage -= 1
+    if damage < 0:
+        damage = 0
     input(f"{damage} damage!")
     if damage == 0:
         input("Miss!")
     elif damage >= highest_dmg - 1:
         input("Critical hit!")
     global enemy_current_health
-    enemy_current_health[which] -= damage
+    enemy_current_health[which - 1] -= damage
+    if enemy_current_health[which - 1] <= 0:
+        enemy_current_health[which - 1] = 0
+        global who_alive
+        who_alive[which - 1] = False
 
 
 def rng_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int, alive: list[bool]) -> None:
@@ -1183,11 +1223,11 @@ def rng_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int,
     highest_dmg: int = 10
     if weapon == "sword":
         input("You swing your sword!")
-        lowest_dmg = 3
+        lowest_dmg = 4
         highest_dmg = 9
     elif weapon == "dagger":
         input("You slash your dagger!")
-        lowest_dmg = 0
+        lowest_dmg = 1
         highest_dmg = 12
     elif weapon == "bow":
         global arrows_ready
@@ -1210,7 +1250,7 @@ def rng_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int,
     damage: int = randint(lowest_dmg, highest_dmg)
     global enemy_distracted
     if enemy_distracted:
-        damage += 1
+        damage += 2
     if weapon == "bow" and enemy[4] >= 50:
         damage -= 1
     global temp_item_buffs_ADS
@@ -1230,13 +1270,19 @@ def rng_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int,
         damage -= 2
     elif enemy[3] >= 10:
         damage -= 1
+    if damage < 0:
+        damage = 0
     input(f"{damage} damage!")
     if damage == 0:
         input("Miss!")
     elif damage >= highest_dmg - 1:
         input("Critical hit!")
     global enemy_current_health
-    enemy_current_health[which] -= damage
+    enemy_current_health[which - 1] -= damage
+    if enemy_current_health[which - 1] <= 0:
+        enemy_current_health[which - 1] = 0
+        global who_alive
+        who_alive[which - 1] = False
 
 
 def attack_of_opportunity(who_attacking: str, enemy_attack: int, enemy_defense: int, which: int) -> None:
@@ -1274,7 +1320,11 @@ def attack_of_opportunity(who_attacking: str, enemy_attack: int, enemy_defense: 
         input(f"{damage} damage!")
         if damage == 0:
             input("Miss!")
-        enemy_current_health[which] -= damage
+        enemy_current_health[which - 1] -= damage
+        if enemy_current_health[which - 1] <= 0:
+            enemy_current_health[which - 1] = 0
+            global who_alive
+            who_alive[which - 1] = False
 
 
 def enemy_turn(room: str, enemy: EnemyStats, alive: list[bool]) -> None:
@@ -1286,8 +1336,8 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list[bool]) -> None:
     if temp_item_buffs_ADS[2] > 0:
         temp_item_buffs_ADS[2] -= 1
     i: int = 1
+    legion_who_acts: list[int] = list()
     if room == "legion":
-        legion_who_acts: list[int] = list()
         i = 1
         pawns_able: int = 0
         while i <= len(alive):
@@ -1301,6 +1351,10 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list[bool]) -> None:
                 legion_who_acts.append(j)
                 pawns_able -= 1
                 i += 1
+        input("--Pawn legion's turn.--")
+    else:
+        legion_who_acts.append(1)
+        input(f"--{enemy[0]}'s turn.--")
     for current_which in legion_who_acts:
         action: str = actions[randint(0, 4)]
         i = randint(0, 2)
@@ -1347,7 +1401,7 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list[bool]) -> None:
                 action = "rock swarm"
             else:
                 action = "fireball"
-            input(f" casts {action}!")
+            input(f"casts {action}!")
         elif action == "healing":
             if i == 0:
                 input("casts a healing spell on themself!")
@@ -1361,10 +1415,10 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list[bool]) -> None:
                 input("drinks a health potion!")
                 lowest_dmg = int(enemy[1] * .12)
                 highest_dmg = int(enemy[1] * .4)
-            if enemy_current_health[current_which] <= .5 * enemy[1] and enemy_current_health[current_which] > .1:
+            if enemy_current_health[current_which - 1] <= .5 * enemy[1] and enemy_current_health[current_which - 1] > .1:
                 lowest_dmg += 3
                 highest_dmg += 2
-            elif enemy_current_health[current_which] <= .1:
+            elif enemy_current_health[current_which - 1] <= .1:
                 lowest_dmg -= 1
                 highest_dmg += 6
             healing: int = randint(lowest_dmg, highest_dmg)
@@ -1386,7 +1440,7 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list[bool]) -> None:
             input(f"{healing} health regained!")
             if healing >= highest_dmg - 1:
                 input("Critical healing!")
-            enemy_current_health[current_which] += healing
+            enemy_current_health[current_which - 1] += healing
         if action != "healing":
             global enemy_distracted
             if enemy[2] >= 60:
@@ -1414,7 +1468,7 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list[bool]) -> None:
                     print(f"{current_which} ", end="", flush=True)
                 input("damages themself!")
                 input(f"{damage} damage!")
-                enemy_current_health[current_which] += damage
+                enemy_current_health[current_which - 1] += damage
     i = 0
     for each_enemy in alive:
         if each_enemy and poison_left[i] > 0:
@@ -1427,11 +1481,11 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list[bool]) -> None:
         i += 1
 
 
-
 def take_damage(damage: int, weapon: str = "Default") -> None:
     """When called, calculate damage done to player."""
     global temp_item_buffs_ADS
     global upgrades
+    global health
     if "rook soul" in upgrades:
         damage = int(damage * .9)
     elif "queen soul" in upgrades:
@@ -1476,6 +1530,9 @@ def take_damage(damage: int, weapon: str = "Default") -> None:
         else:
             damage = int(damage * .5)
     input(f"{damage} damage!")
+    health -= damage
+    if health < 0:
+        health = 0
     if damage == 0:
         input("Miss!")
 
@@ -1487,6 +1544,8 @@ def fight_flavor_text(room: str, turn: int, alive: list[bool]) -> None:
     i: int = 0
     if room == "tutorial":
         flavor_texts.append("JESTER: \"During a tussle, you'll have to choose to use your words, items, or muscles!\"")
+        flavor_texts.append("JESTER: \"If you occupy your opponent with an action, their attacks will be weakened and yours more effective, as they're too busy with your distraction!\"")
+        flavor_texts.append("JESTER: \"Be forewarned, each option is unique; learn to use them well and no doubt you'll end up with a win streak!\"")
         overflow_texts.append("The Jester makes a beckoning hand gesture.")
         overflow_texts.append("The Jester is bouncing with excitement.")
         overflow_texts.append("It's hard to tell if they're holding back or not.")
