@@ -18,7 +18,7 @@ room_id: str = "tutorial"
 met_jester: bool = False
 enemy_distracted: bool = False
 upgrades: list[str] = list()
-temp_item_buffs_ADS: list[int] = [0, 0, 0] # attack buff, defense buff, shield active or not
+temp_item_buffs_ADS: list[int] = [0, 0, 0]  # attack buff, defense buff, shield active or not
 hp_potions: int = 5
 arrows_ready: int = 4
 arrows_quiver: int = 30
@@ -27,8 +27,8 @@ using_poisoned_arrows: bool = False
 poison_left: list[int] = [0, 0, 0, 0, 0, 0, 0, 0]
 attack_up_scroll: int = 0
 defense_up_ointment: int = 0
-ItemPrice = tuple[str, int, str] # Name, Price, Extra space if needed
-EnemyStats = tuple[str, int, int, int, int, int, int] # Name, Health, Attack, Defense, Speed (inverse to Accuracy Window if have reaction attack upgrade), G on kill, points on win
+ItemPrice = tuple[str, int, str]  # Name, Price, Extra space if needed
+EnemyStats = tuple[str, int, int, int, int, int, int]  # Name, Health, Attack, Defense, Speed (inverse to Accuracy Window if have reaction attack upgrade), G on kill, points on win
 enemy_current_health: list[int] = list()
 
 U_PLAYR: str = "\U0000265F"
@@ -40,6 +40,7 @@ U_BOX_R: str = "\U0001F7E5"
 def main() -> None:
     """Entrypoint of program."""
     greet()
+    global health
     health = max_health
     still_playing: bool = True
     while still_playing:
@@ -51,7 +52,6 @@ def main() -> None:
         else:
             room_id = path
         
-
 
 def greet() -> None:
     """Begin the game with instructions and lore, and input names."""
@@ -87,7 +87,7 @@ def greet() -> None:
     input("Ah, very good. Well then, it is time to begin your journey.")
     input(f"Good luck, {user_name}.\n")
     input(f"And so, {player} set off, seeking vengeance.")
-    input(f"However, they lacked training, and decided to start by stopping by to see an impartial (and rather eccentric) character for some training: the jester.")
+    input("However, they lacked training, and decided to start by stopping by to see an impartial (and rather eccentric) character for some training: the jester.")
     points += 5
 
 
@@ -239,7 +239,7 @@ def room_dialogue(room: str) -> str:
             input("         But not with me; this brawl is free!\"")
             return "fight"
     elif room == "tutorial_intersection":
-        choice = input(f"{player} braces themself as they prepare to advance through the Guantlet. There's nothing else to do now but continue [UP] or [QUIT]. " ).lower()
+        choice = input(f"{player} braces themself as they prepare to advance through the Guantlet. There's nothing else to do now but continue [UP] or [QUIT]. ").lower()
         if choice == "quit":
             quit_game()
         i: int = 0
@@ -375,7 +375,7 @@ def room_dialogue(room: str) -> str:
                 else:
                     choice == input("This bishop's ego with be their downfall; they're a bit overconfident in their ability to [FIGHT]. ").lower()
         deity: str = "Chess"
-        if randint(0,3) == 3:
+        if randint(0, 3) == 3:
             global user_name
             deity = user_name
         input(f"BISHOP: \"Now then, let us begin. The power of {deity} compels you! Begone, pawn!")
@@ -421,7 +421,7 @@ def room_dialogue(room: str) -> str:
     elif room == "queen":
         input(f"As they near the end of the Guantlet, {player}'s path is suddenly blocked by an incredibly intimidating presence...")
         input(f"The Queen appears! Their regal form towers above you. A flash of regret passes through {player} as they glare down at them.")
-        choice = input(f"What will you do? What can you do, though? [TALK]? [FIGHT]? [QUIT]? ").lower()
+        choice = input("What will you do? What can you do, though? [TALK]? [FIGHT]? [QUIT]? ").lower()
         while choice != "talk" and choice != "fight":
             if choice == "quit":
                 quit_game()
@@ -440,7 +440,7 @@ def room_dialogue(room: str) -> str:
                     print("QUEEN: \"Don't bother trying to deceive us with your talk of justice. We're not as soft as the King.\"")
                     points += 10
                     tried_talking = True
-                choice = input(f"Proceed. [FIGHT]. ").lower()
+                choice = input("Proceed. [FIGHT]. ").lower()
         input("QUEEN: \"You dare to resist us? Have at thee, villainous cur! Off with thy head!\"")
         return "fight"
     elif room == "king":
@@ -525,9 +525,8 @@ def room_dialogue(room: str) -> str:
 
 
 def room_fight(room: str) -> str:
-    """Begin a fight with the proper character.""" #CURRENTLY UNFINISHED
+    """Begin a fight with the proper character."""
     choice: str = ""
-    fight_over: bool = False
     turn: int = 0
     HEALTH_UPGRADE_HEALTH: int = 60
     global max_health
@@ -581,11 +580,11 @@ def room_fight(room: str) -> str:
             input("You received the Iron Shield! Much sturdier than your wooden shield. Can reduce incoming damage for 3 turns instead of 2!")
             return "tutorial_intersection"
         elif room == "pawn":
-            upgrades.append("pawn soul") #en passant (reactionary attacks)
+            upgrades.append("pawn soul")  # en passant (reactionary attacks)
             input("You've collected the soul of the enemy pawn. It increases your Pawn Power, and through the power of En Passant, your attacks now rely on Reaction Speed!")
             return "knight"
         elif room == "knight":
-            upgrades.append("knight soul") #widens window of reactionary attack (not actuall necessary bc of linear progression) and ability to choose RNG or reactionary
+            upgrades.append("knight soul")  # widens window of reactionary attack (not actuall necessary bc of linear progression) and ability to choose RNG or reactionary
             print("You've collected the knight's soul. It increases your accuracy window during Reactionary Attacks, and ")
             input(" it grants you the ability to choose whether to use them or to rely on RNG attacks.")
             return "pawn_legion"
@@ -628,6 +627,7 @@ def room_fight(room: str) -> str:
             choice = input("[RETRY] or [QUIT]? ").lower()
         health = max_health
         return room
+
 
 def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list[bool]) -> None:
     """During a fight, determine player's action each turn."""
@@ -816,7 +816,7 @@ def act_check_info(room: str, enemy: EnemyStats, which: int = 1) -> None:
     if room == "pawn_legion":
         print(f" {which}. ", end="", flush=True)
     else:
-        print(f". ", end="", flush=True)
+        print(". ", end="", flush=True)
     input(f"HP: {enemy_current_health[which - 1]}. Attack: {enemy[2]}. Defense: {enemy[3]}. Speed:{enemy[4]}.")
     if room == "tutorial":
         input("An eccentric yet experienced wild card. Has a great sense of humor, but also only speaks in rhymes.")
@@ -870,7 +870,7 @@ def act_check_info(room: str, enemy: EnemyStats, which: int = 1) -> None:
         input("The leader of the White Side.")
         input("Majestic, calm, and tired. They can take a lot of damage, but usually doesn't have to. They can deal some damage, but usually doesn't want to.")
         input("They don't want to have to fight you. They never wanted war.")
-        i: int = randint(0,2)
+        i: int = randint(0, 2)
         if i == 0:
             global user_name
             input(f"But something has brought you two together. Call it fate. Call it {user_name}. And now, the fight continues.")
@@ -888,7 +888,7 @@ def act_compliment(room: str, enemy: EnemyStats, which: int = 1) -> bool:
     if room == "queen":
         input("The Queen sneers and reassures you that they're aware of their own perfection. Looks like compliments don't work on them.")
         return False
-    i: int = randint(0,3)
+    i: int = randint(0, 3)
     if i == 0 and room != "bishop" and room != "rook":
         input("Sadly, it has no effect this time; the enemy seems unfazed.")
         return False
@@ -915,7 +915,7 @@ def act_flirt(room: str, enemy: EnemyStats, which: int = 1) -> bool:
     """During battle, an option for the player to use to interact with the enemy by flirting with them."""
     if room == "rook":
         input("The rook confusedly turns you down. Seems like they aren't really susceptible to flirting.")
-    i: int = randint(0,2)
+    i: int = randint(0, 2)
     if i == 0:
         input("You botch the delivery of the worst, most overused pick-up line I've ever heard.")
         input("You awkward clown, you can't smoothtalk!")
@@ -974,7 +974,7 @@ def act_insult(room: str, enemy: EnemyStats, which: int = 1) -> bool:
         input(f"You insult the {enemy[0].lower()}.")
     else:
         input(f"You insult {enemy[0].lower()} {which}.")
-    i: int = randint(0,2)
+    i: int = randint(0, 2)
     if i == 0:
         input("They look at you weirdly, laugh, and fire a witty comeback at you.")
         input("Ouch.")
@@ -1055,7 +1055,7 @@ def choose_enemy(alive: list[bool]) -> int:
         print("Which one? ", end="", flush=True)
         i = 1
         while i <= len(alive):
-            if alive[i] == True:
+            if alive[i]:
                 print(f"[{i}]", end="", flush=True)
             if i < len(alive):
                 print(", ", end="", flush=True)
@@ -1066,7 +1066,7 @@ def choose_enemy(alive: list[bool]) -> int:
             int(which)
             i = 1
             while i <= len(alive):
-                if alive[i] == True:
+                if alive[i]:
                     enemy_valid = True
         except ValueError:
             which = input("That's not even a number. Which? ").lower()
@@ -1145,7 +1145,7 @@ def rng_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int,
 
 def attack_of_opportunity(who_attacking: str, enemy_attack: int, enemy_defense: int, which: int) -> None:
     """Allows the player or enemy to perform a quick attack while the other is occupied for a second."""
-    damage: int = randint(0,4)
+    damage: int = randint(0, 4)
     MISS_CHANCE = 25
     if who_attacking == "enemy":
         if enemy_attack >= 60:
@@ -1201,13 +1201,13 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list[bool]) -> None:
         i = 0
         while i < 3 and pawns_able > 0:
             j: int = randint(1, 8)
-            if alive[j] == True:
+            if alive[j]:
                 legion_who_acts.append(j)
                 pawns_able -= 1
                 i += 1
     for current_which in legion_who_acts:
         action: str = actions[randint(0, 4)]
-        i = randint(0,2)
+        i = randint(0, 2)
         print(f"{enemy[0]} ", end="", flush=True)
         if room == "legion":
             print(f"{current_which} ", end="", flush=True)
@@ -1293,8 +1293,6 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list[bool]) -> None:
             enemy_current_health[current_which] += healing
         if action != "healing":
             global enemy_distracted
-            if enemy_distracted:
-                damage -= 2
             if enemy[2] >= 60:
                 lowest_dmg += 3
                 highest_dmg += 3
@@ -1305,6 +1303,8 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list[bool]) -> None:
                 lowest_dmg += 1
                 highest_dmg += 1
             damage: int = randint(lowest_dmg, highest_dmg)
+            if enemy_distracted:
+                damage -= 2
             if (action == "sword" or action == "dagger") and damage < 0:
                 damage = 0
             elif action == "bow" and damage < 3:
@@ -1339,7 +1339,7 @@ def take_damage(damage: int, weapon: str = "Default") -> None:
         if "iron shield" in upgrades:
             i = randint(0, 5)
         else:
-            i = randint(0,3)
+            i = randint(0, 3)
         if weapon == "dagger":
             input("The blade of the dagger glances off of the shield!")
         elif weapon == "sword":
@@ -1410,7 +1410,7 @@ def fight_flavor_text(room: str, turn: int, alive: list[bool]) -> None:
         flavor_texts.append("The pawns begin to close in.")
         flavor_texts.append("The mob glares at you.")
         i = randint(1, 8)
-        while alive[i] == False:
+        while not alive[i]:
             i = randint(1, 8)
         overflow_texts.append(f"Pawn {i} gives you a death stare...")
         overflow_texts.append(f"Pawn {i} vows they will avenge their comrades.")
@@ -1496,9 +1496,9 @@ def print_stats() -> None:
     print(f"                |   Attack Up Scrolls: {attack_up_scroll}   |   Defense Up Ointment: {defense_up_ointment}")
     print(f"   {U_MONEYBAG} {gold} Gold     |   Adventure Points: {points}")
     print(f"   HP: {health}/{max_health}")
-    if health > max_health/2:
+    if health > max_health / 2:
         use_u_box = U_BOX_G
-    elif health > max_health/5:
+    elif health > max_health / 5:
         use_u_box = U_BOX_Y
     else:
         use_u_box = U_BOX_R
@@ -1514,8 +1514,8 @@ def shop_menu() -> bool:
     global hp_potions
     global arrows_quiver
     global poisoned_arrow_bunch
-    global attack_up_scroll #contains generic motivational quote poster but about revenge OR contains a bad opinion to get angry over
-    global defense_up_ointment #thin layer, so it only lasts 1 turn
+    global attack_up_scroll
+    global defense_up_ointment
     global gold
     price_pot: ItemPrice = ("HP Potion", 20, "")
     price_arrow: ItemPrice = ("Arrow", 3, " ")
@@ -1534,8 +1534,8 @@ def shop_menu() -> bool:
 def shop_prices(p_pot: ItemPrice, p_arw: ItemPrice, p_p_arws: ItemPrice, p_atk: ItemPrice, p_def: ItemPrice) -> bool:
     """Display item prices and allow player to purchase them."""
     global gold
-    bought: bool = False;
-    buying: bool = True;
+    bought: bool = False
+    buying: bool = True
     wares: list[ItemPrice] = [p_pot, p_arw, p_p_arws, p_atk, p_def]
     while buying:
         i: int = 0
@@ -1557,6 +1557,8 @@ def shop_prices(p_pot: ItemPrice, p_arw: ItemPrice, p_p_arws: ItemPrice, p_atk: 
                 print("                 instead of normal arrows to use in your bow.")
             elif choice == "4":
                 print("A Magical Scroll of Attack. Temporarily boosts your damage output by 3-8 damage for 3 turns if used during battle.")
+                print("                            either contains a generic motivational quote poster, but about revenge,")
+                print("                            or it contains a bad opinion to get angry over.")
             elif choice == "5":
                 print("An Magical Ointment of Defense. Reduces incoming damage by 30%-80% if used during battle.")
                 print("                                Quite thin; rubs off after absorbing damage from 3 attacks.")
@@ -1596,4 +1598,4 @@ def quit_game() -> None:
 
 
 if __name__ == "__main__":
-  main()
+    main()
