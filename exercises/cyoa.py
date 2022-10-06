@@ -530,6 +530,7 @@ def room_fight(room: str) -> str:
     fight_over: bool = False
     turn: int = 0
     HEALTH_UPGRADE_HEALTH: int = 60
+    global max_health
     who_alive: list[bool] = [True]
     enemy: EnemyStats
     STATS_JESTER: EnemyStats = ("Jester", 50, 15, 20, 999, 30, 50)
@@ -591,7 +592,6 @@ def room_fight(room: str) -> str:
         elif room == "pawn_legion":
             upgrades.append("legion souls")
             input(f"You've obtained the souls of enough pawns that your maximum health has increased from {max_health} to {HEALTH_UPGRADE_HEALTH}! You'll need it if you want to survive the stronger opponants ahead.")
-            global max_health
             max_health = HEALTH_UPGRADE_HEALTH
             return "shop_intersection"
         elif room == "bishop":
@@ -626,7 +626,6 @@ def room_fight(room: str) -> str:
                 input("That's understandable. Good try.")
                 quit_game()
             choice = input("[RETRY] or [QUIT]? ").lower()
-        global max_health
         health = max_health
         return room
 
