@@ -4,7 +4,8 @@ __author__ = "930605992"
 
 
 import time
-from random import randint
+from random import randint, uniform
+import msvcrt
 
 
 points: int = 0
@@ -539,7 +540,7 @@ def room_fight(room: str) -> str:
     global max_health
     who_alive: list[bool] = [True]
     enemy: EnemyStats
-    STATS_JESTER: EnemyStats = ("Jester", 50, 15, 20, 999, 30, 50)
+    STATS_JESTER: EnemyStats = ("Jester", 50, 15, 20, 99, 30, 50)
     STATS_PAWN: EnemyStats = ("Pawn", 25, 10, 20, 10, 5, 15)
     STATS_KNIGHT: EnemyStats = ("Knight", 75, 25, 25, 80, 50, 30)
     STATS_BISHOP: EnemyStats = ("Bishop", 30, 75, 5, 50, 75, 50)
@@ -1085,7 +1086,95 @@ def choose_enemy(alive: list[bool]) -> int:
 def speed_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int, alive: list[bool]) -> None:
     """Allows the player to perform an attack on the enemy that relies on quick reflexes."""
     input("(Sorry, but speed-based attacks are not currently working. They will be added soon.)")
-    rng_attack(weapon, enemy, which, room, turn, alive)
+    # return rng_attack(weapon, enemy, which, room, turn, alive)
+    lowest_dmg: int = 0
+    highest_dmg: int = 10
+    delay: list[float] = [3, 0.2, 1]  # Before, crit window, miss threshold
+    if weapon == "sword":
+        input("Get ready to swing your sword!")
+        lowest_dmg = 3
+        highest_dmg = 9
+        delay[0] = uniform(3, 4)
+        delay[2] += (1 - enemy[4] * 0.01) + 1
+    elif weapon == "dagger":
+        input("You ready your dagger!")
+        lowest_dmg = 0
+        highest_dmg = 12
+        delay[0] = uniform(1, 2)
+        delay[2] += (1 - enemy[4] * 0.01) + 0.2
+    elif weapon == "bow":
+        global arrows_ready
+        global arrows_quiver
+        global using_poisoned_arrows
+        global poison_left
+        delay[0] = uniform(2, 3)
+        delay[1] += (1 - enemy[4] * 0.01) + 2
+        if arrows_ready == 0 and arrows_quiver == 0:
+            input("You don't have any arrows left!")
+            return player_turn(room, enemy, turn, alive)
+        elif arrows_ready == 0:
+            input("You need to draw more arrows!")
+            return player_turn(room, enemy, turn, alive)
+        else:
+            input("You nock an arrow and draw your bow!")
+            if using_poisoned_arrows:
+                poison_left[which - 1] = 3
+        arrows_ready -= 1
+        lowest_dmg = -2
+        highest_dmg = 15
+    delay[1] = (1 - enemy[4] * 0.01) + 2.5
+    damage: int = 0
+    print("Hit enter as soon as you see the \"NOW!\"")
+    input("Get ready...")
+    time.sleep(delay[0])
+    while msvcrt.kbhit():
+        if msvcrt.getch():
+            print("Don't hit anything early!")
+            time.sleep(delay[0])
+    time_start: float = time.time()
+    input("NOW!")
+    time_end: float = time.time()
+    time_delta: float = time_end - time_start
+    if time_delta < 0:
+        input("Cheating isn't nice.")
+        time_delta = 60
+    if time_delta <= delay[1]:
+        damage = highest_dmg
+    elif time_delta > delay[2]:
+        damage = 0
+    else:
+        time_standardized: float = time_delta / delay[2]
+        damage_highest_zeroed: int = highest_dmg - lowest_dmg
+        damage = int(damage_highest_zeroed * time_standardized + lowest_dmg)
+    global enemy_distracted
+    if enemy_distracted:
+        damage += 1
+    if weapon == "bow" and enemy[4] >= 50:
+        damage -= 1
+    global temp_item_buffs_ADS
+    global upgrades
+    if temp_item_buffs_ADS[0] > 0:
+        damage += randint(3, 8)
+        temp_item_buffs_ADS[0] -= 1
+    if "bishop soul" in upgrades:
+        damage += 2
+    if "queen soul" in upgrades:
+        damage += 4
+    if weapon == "bow" and damage < 5:
+        damage = 0
+    if enemy[3] >= 50:
+        damage -= 3
+    elif enemy[3] >= 25:
+        damage -= 2
+    elif enemy[3] >= 10:
+        damage -= 1
+    input(f"{damage} damage!")
+    if damage == 0:
+        input("Miss!")
+    elif damage >= highest_dmg - 1:
+        input("Critical hit!")
+    global enemy_current_health
+    enemy_current_health[which] -= damage
 
 
 def rng_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int, alive: list[bool]) -> None:
@@ -1326,6 +1415,17 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list[bool]) -> None:
                 input("damages themself!")
                 input(f"{damage} damage!")
                 enemy_current_health[current_which] += damage
+    i = 0
+    for each_enemy in alive:
+        if each_enemy and poison_left[i] > 0:
+            poison_left[i] -= 1
+            if room == "legion":
+                input(f"{enemy[0]} {i + 1} is afflicted by poison!")
+                poison_damage: int = randint(2, 4)
+                input(f"{poison_damage} damage!")
+                enemy_current_health[i] -= poison_damage
+        i += 1
+
 
 
 def take_damage(damage: int, weapon: str = "Default") -> None:
