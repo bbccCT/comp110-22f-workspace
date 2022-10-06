@@ -56,11 +56,18 @@ def main() -> None:
 def greet() -> None:
     """Begin the game with instructions and lore, and input names."""
     global points
+    global player
     input("(When lines of text not requiring input appear, press the ENTER key to progress after reading.)")
     print("(Good. Now, when input is required, options such as [FIGHT] or [TALK] will be included")
     choice: str = input("  and you should type one of them (minus the brackets) (not case sensitive), [OKAY]?) ")
-    while choice.lower() != "okay":
-        choice = input("(So if the option you want to select is [OKAY], you can type \"okay\", [OKAY]?) ")
+    # while choice != "okay":
+    #     choice = input("(So if the option you want to select is [OKAY], you can type \"okay\", [OKAY]?) ").lower()
+    choice = input("(So if the option you want to select is [OKAY], you can type \"okay\", [OKAY]?) ").lower()
+    if choice == "okay":
+        input("Great! Thank you for listening.")
+        points += 5
+    else:
+        input("Um... that's not exactly an \"okay\", but it'll do for now.")
     input("(Sometimes, though, a hidden option you might have used in the past can be available, even if not listed, so type wisely...)")
     input("(And now that the controls have been introduced...)")
     input("(On with the show.)")
@@ -73,7 +80,6 @@ def greet() -> None:
     input("((((Okay, okay, sorry; I'll get back to narrating, jeez...))))")
     input("Though while the White Side emerged victorious, the Black Side's remaining members harbored an intense emnity after having been defeated.")
     input("Eventually, several minutes later, one such pawn embarked on a monumental quest of revenge...")
-    global player
     player = input("Now... What's that daring hero's name? ")
     while not player:
         player = input("(Please don't just spam enter. Name the hero.) ")
