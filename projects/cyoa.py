@@ -12,7 +12,7 @@ points: int = 0
 gold: int = 50
 user_name: str = ""
 player: str = ""
-max_health: int = 25
+max_health: int = 30
 health: int = max_health
 speed: int = 10
 room_id: str = "tutorial"
@@ -524,7 +524,7 @@ def room_fight(room: str) -> str:
     choice: str = ""
     fight_over: bool = False
     turn: int = 0
-    HEALTH_UPGRADE_HEALTH: int = 50
+    HEALTH_UPGRADE_HEALTH: int = 60
     who_alive: list[bool] = [True]
     enemy: EnemyStats
     STATS_JESTER: EnemyStats = ("Jester", 50, 15, 20, 999, 30, 50)
@@ -560,11 +560,11 @@ def room_fight(room: str) -> str:
     global health
     while True in who_alive and health > 0:
         if room == "queen":
-            enemy_turn(room, enemy, turn, who_alive)
+            enemy_turn(room, enemy, who_alive)
         else:
             player_turn(room, enemy, turn, who_alive)
         if room != "queen":
-            enemy_turn(room, enemy, turn, who_alive)
+            enemy_turn(room, enemy, who_alive)
         else:
             player_turn(room, enemy, turn, who_alive)
         turn += 1
@@ -975,11 +975,131 @@ def attack_of_opportunity(who_attacking: str, enemy_attack: int, enemy_defense: 
         enemy_current_health[which] -= damage
 
 
-def enemy_attack(room: str, enemy: EnemyStats):
-    input() #temp
+def enemy_turn(room: str, enemy: EnemyStats, alive: list(bool)) -> None:
+    """During a fight, determine enemy's action each turn."""
+    actions: list[str] = ["sword", "dagger", "bow", "magic", "healing"]
+    lowest_dmg: int = 0
+    highest_dmg: int = 10
+    if room == "legion":
+        legion_who_acts: list[int] = list()
+        i: int = 1
+        pawns_able: int = 0
+        while i <= len(alive):
+            if alive[i]:
+                pawns_able += 1
+            i += 1
+        i = 0
+        while i < 3 and pawns_able > 0:
+            j: int = randint(1, 8)
+            if alive[j] == True:
+                legion_who_acts.append(j)
+                pawns_able -= 1
+                i += 1
+    for current_which in legion_who_acts:
+        action: str = actions[randint(0, 4)]
+        i: int = randint(0,2)
+        print(f"{enemy[0]} ", end="", flush=True)
+        if room == "legion":
+            print(f"{current_which} ", end="", flush=True)
+        if action == "sword":
+            lowest_dmg = 1
+            highest_dmg = 4
+            if i == 0:
+                input("swings their sword!")
+            elif i == 1:
+                input("thrusts their sword!")
+            elif i == 2:
+                input("slashes at you with their sword!")
+        elif action == "dagger":
+            lowest_dmg = -1
+            highest_dmg = 6
+            if i == 0:
+                input("stabs at you with their dagger!")
+            elif i == 1:
+                input("cuts at you with their dagger!")
+            elif i == 2:
+                input("throws a knife at you!")
+        elif action == "bow":
+            lowest_dmg = -3
+            highest_dmg = 8
+            if i == 0:
+                input("fires a barrage of arrows at you!")
+            elif i == 1:
+                input("lines up a shot at you with their bow and fires!")
+            elif i == 2:
+                input("launches a volley of arrows in your direction!")
+        elif action == "magic":
+            lowest_dmg = -5
+            highest_dmg = 10
+            if room == "pawn" or room == "legion":
+                action = "water jet"
+            elif room == "knight":
+                action = "air cutter"
+            elif room == "bishop":
+                action = "holy light"
+            elif room == "rook":
+                action = "rock swarm"
+            else:
+                action = "fireball"
+            input(f" casts {action}!")
+        elif action == "healing":
+            if i == 0:
+                input("casts a healing spell on themself!")
+                lowest_dmg = -3
+                highest_dmg = 15
+            elif i == 1:
+                input("applies a bandage to themself!")
+                lowest_dmg = 0
+                highest_dmg = 10
+            elif i == 2:
+                input("drinks a health potion!")
+                lowest_dmg = int(enemy[1] * .12)
+                highest_dmg = int(enemy[1] * .4)
+            if enemy_current_health[current_which] <= .5 * enemy[1] and enemy_current_health[current_which] > .1:
+                lowest_dmg += 3
+                highest_dmg += 2
+            elif enemy_current_health[current_which] <= .1:
+                lowest_dmg -= 1
+                highest_dmg += 6
+            healing: int = randint(lowest_dmg, highest_dmg)
+            if healing <= 0:
+                healing = 0
+                if i == 0:
+                    input(f"{enemy[0]}'s casting fails!")
+                elif i == 1:
+                    input("The bandage doesn't stick and immediately falls off!")
+                elif i == 2:
+                    input("Somehow, the health potion doesn't work... it must be defective.")
+            enemy_current_health[current_which] += healing
+        if action != "healing":
+            if enemy[2] >= 60:
+                lowest_dmg += 3
+                highest_dmg += 3
+            elif enemy[2] >= 40:
+                lowest_dmg += 2
+                highest_dmg += 2
+            elif enemy[2] >= 20:
+                lowest_dmg += 1
+                highest_dmg += 1
+            damage: int = randint(lowest_dmg, highest_dmg)
+            if (action == "sword" or action == "dagger") and damage < 0:
+                damage = 0
+            elif action == "bow" and damage < 3:
+                damage = 0
+            if damage >= 0:
+                take_damage(damage, action)
+            else:
+                input("The spell backfires!")
+                print(f"{enemy[0]} ", end="", flush=True)
+                if room == "legion":
+                    print(f"{current_which} ", end="", flush=True)
+                input("damages themself!")
+                input(f"{damage} damage!")
+                enemy_current_health[current_which] += damage
 
 
 def take_damage(damage: int, weapon: str = "Default") -> None:
+    """When called, calculate damage done to player."""
     global temp_item_buffs_ADS
     global upgrades
     if "rook soul" in upgrades:
@@ -993,10 +1113,20 @@ def take_damage(damage: int, weapon: str = "Default") -> None:
     if temp_item_buffs_ADS[2] > 0:
         input("You raise your shield;")
         i: int = randint(0, 5)
-        if weapon == "sword" or weapon == "dagger":
-            input("The blade glances off of the shield, digging into the floor!")
+        if weapon == "dagger":
+            input("The blade of the dagger glances off of the shield!")
+        elif weapon == "sword":
+            input("The sword is deflected, digging into the floor instead!")
         elif weapon == "fireball":
             input("The shield pushes the oncoming flames around it, and they spill off around you!")
+        elif weapon == "water jet":
+            input("The shield disperses the oncoming stream of water around it, and they splash off around you!")
+        elif weapon == "rock swarm":
+            input("You duck and use the shield to redirect the oncoming boulders, pushing the larger rocks away, and the smaller ones bounce off!")
+        elif weapon == "air cutter":
+            input("Taking on the air cutter at an angle, you deflect it away! The wind swirls around you.")
+        elif weapon == "holy light":
+            input("You lift your shield and shut your eyes as the bishop creates a brilliant, blinding flash!")
         elif weapon == "bow":
             if i == 5:
                 input("You skillfully deflect the arrow with the shield, and it spins away and lodges in the floor!")
@@ -1109,11 +1239,6 @@ def fight_flavor_text(room: str, turn: int, alive: list(bool)) -> None:
     else:
         i: int = randint(0, len(overflow_texts) - 1)
         input(overflow_texts[i])
-
-
-def enemy_turn(room: str, stats: EnemyStats, turn: int) -> None:
-    """During a fight, determine enemy's action each turn."""
-    input() #temp
 
 
 def print_stats() -> None:
