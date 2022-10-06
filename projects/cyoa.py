@@ -835,11 +835,11 @@ def act_flirt(room: str, enemy: EnemyStats, which: int = 1) -> bool:
         input("The rook confusedly turns you down. Seems like they aren't really susceptible to flirting.")
     i: int = randint(0,2)
     if i == 0:
-        input() #temp
+        input()
     elif i == 1:
-        input() #temp
+        input()
     else:
-        input() #temp
+        input()
 
 
 def act_mystify(room: str, enemy: EnemyStats, which: int = 1) -> bool:
@@ -1070,6 +1070,16 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list(bool)) -> None:
                     input("The bandage doesn't stick and immediately falls off!")
                 elif i == 2:
                     input("Somehow, the health potion doesn't work... it must be defective.")
+            elif healing > 0 and healing <= 2:
+                if i == 0:
+                    input("The spell was incomplete!")
+                elif i == 1:
+                    input("The bandage is barely hanging on... It doesn't look that effective.")
+                elif i == 2:
+                    input(f"{enemy[0]}'s face scrunches up reflexively. Seems like the potion was expired.")
+            input(f"{healing} health regained!")
+            if healing >= highest_dmg - 1:
+                input("Critical healing!")
             enemy_current_health[current_which] += healing
         if action != "healing":
             if enemy[2] >= 60:
