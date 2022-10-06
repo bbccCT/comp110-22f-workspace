@@ -1504,7 +1504,7 @@ def print_stats() -> None:
         use_u_box = U_BOX_R
     i = 0
     while i < health:
-        print(use_u_box, end = '')
+        print(use_u_box, end="")
         i += 5
     input()
 
