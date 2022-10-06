@@ -19,12 +19,13 @@ room_id: str = "tutorial"
 met_jester: bool = False
 enemy_distracted: bool = False
 upgrades: list[str] = list()
-temp_item_buffs_ADS: list[int] = [0, 0, 0] #attack buff, defense buff, shield active or not
-shield_lvl: int = 1
+temp_item_buffs_ADS: list[int] = [0, 0, 0] # attack buff, defense buff, shield active or not
 hp_potions: int = 5
 arrows_ready: int = 4
 arrows_quiver: int = 30
 poisoned_arrow_bunch: int = 0
+using_poisoned_arrows: bool = False
+poison_left: list[int] = [0, 0, 0, 0, 0, 0, 0, 0]
 attack_up_scroll: int = 0
 defense_up_ointment: int = 0
 ItemPrice = tuple[str, int, str] # Name, Price, Extra space if needed
@@ -630,6 +631,7 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> N
     choice: str = ""
     fight_flavor_text(room, turn, alive)
     input(f"--{player}'s turn.--")
+    print_stats()
     print("What will you do?")
     while choice != "fight" and choice != "act" and choice != "item":
         choice = input("[FIGHT], [ACT], [ITEM], [QUIT]? ").lower()
@@ -640,7 +642,7 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> N
         which = choose_enemy(alive)
         weapon: str = ""
         print("What weapon would you like to use?")
-        while weapon != "sword" and weapon != "dagger" and weapon != "bow" and weapon != "knife":
+        while weapon != "sword" and weapon != "dagger" and weapon != "bow" and weapon != "knife" and weapon != "cancel":
             weapon = input("[SWORD], [DAGGER], [BOW], or [CANCEL]? ").lower()
             if weapon == "quit":
                 quit_game()
@@ -668,7 +670,7 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> N
         print("What would you like to do?")
         global enemy_distracted
         if room != "king":
-            while choice != "check" and choice != "pay" and choice != "apologize" and choice != "compliment" and choice != "mystify" and choice != "trick" and choice != "insult" and choice != "flirt" and choice != "dance":
+            while choice != "check" and choice != "pay" and choice != "apologize" and choice != "compliment" and choice != "mystify" and choice != "trick" and choice != "insult" and choice != "flirt" and choice != "dance" and choice != "cancel":
                 print("[CHECK], ", end="", flush=True)
                 if room == "queen":
                     print("[PAY] to distract, ", end="", flush=True)
@@ -679,6 +681,7 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> N
                     quit_game()
                 elif choice == "cancel" or choice == "back":
                     return player_turn(room, enemy, turn, alive)
+                    choice = "cancel"
                 if room != "queen" and choice == "pay":
                     choice = ""
                     input("This enemy isn't greedy enough to be distracted by money, nor disloyal enough to take a bribe.")
@@ -713,6 +716,19 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> N
                 act_check_info(room, enemy, which)
             elif choice == "compliment":
                 enemy_distracted = act_compliment(room, enemy, which)
+            elif choice == "mystify":
+                enemy_distracted = act_mystify(room, enemy)
+            elif choice == "trick":
+                act_trick(room, enemy, which)
+            elif choice == "insult":
+                act_insult(room, enemy, which)
+            elif choice == "flirt":
+                act_flirt(room, enemy, which)
+            elif choice == "dance":
+                act_dance(room, enemy, which)
+            else:
+                input("(I don't even know what you're trying to do...)")
+                input("(So I guess you don't do anything.)")
         else:
             while choice != "check" and choice != "talk":
                 choice = input("[CHECK], [TALK], or [CANCEL]. ").lower()
@@ -729,9 +745,63 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list(bool)) -> N
                 talk_king.append("You ask the King why they murdered so many of your people. Their expression of grief deepens, but they keep attacking.")
                 i: int = randint(0, len(talk_king) - 1)
                 input(talk_king[i])
+    elif choice == "item":
+        print_stats()
+        global temp_item_buffs_ADS
+        while choice != "shield" and choice != "hp pot" and choice != "quiver" and choice != "poisoned arrows" and choice != "atk scroll" and choice != "def ointment" and choice != "cancel":
+            choice = input("What item would you like to use? [SHIELD], [HP POT], [QUIVER], [POISONED ARROWS], [ATK SCROLL], [DEF OINTMENT], or [CANCEL]?").lower()
+            if choice == "cancel" or choice == "back":
+                return player_turn(room, enemy, turn, alive)
+        global arrows_ready
+        global using_poisoned_arrows
+        if choice == "shield":
+            if "iron shield" in upgrades:
+                temp_item_buffs_ADS[2] = 3
+            else:
+                temp_item_buffs_ADS[2] = 2
+            input("You ready your shield.")
+            input(f"Damage will be reduced for the next {temp_item_buffs_ADS[2]} turns.")
+        elif choice == "hp pot":
+            global max_health
+            global health
+            global hp_potions
+            input("You drink a health potion.")
+            i: int = randint(12, 40)
+            healing: int = int((i * 0.01) * max_health)
+            input(f"{healing} health regained!")
+            if i > 35:
+                input("Critical healing!")
+            elif i <= 20:
+                input("The enemy startled you, and you dropped the potion mid-chug!")
+            elif i > 20 and i <= 25:
+                input("A bit bitter...")
+            elif i > 25 and i <= 30:
+                input("The potion tastes... decent. But it's the effect that matters!")
+                input("The effect is also just okay.")
+            if i > 30:
+                input("It's ambrosial.")
+            health += healing
+            hp_potions -= 1
+        elif choice == "quiver":
+            input("You draw 4 arrows out of your quiver.")
+            global arrows_quiver
+            arrows_transferred: int = 4 - arrows_ready
+            arrows_quiver -= arrows_transferred
+            arrows_ready = 4
+            using_poisoned_arrows = False
+        elif choice == "poisoned arrows":
+            global poisoned_arrow_bunch
+            arrows_ready = 4
+            using_poisoned_arrows = True
+            poisoned_arrow_bunch -= 1
+        elif choice == "atk scroll":
+            temp_item_buffs_ADS[0] = 3
+        elif choice == "def ointment":
+            temp_item_buffs_ADS[1] = 3
 
 
 def act_check_info(room: str, enemy: EnemyStats, which: int = 1) -> None:
+    """During battle, access information about the enemies and display it."""
     global player
     global points
     global enemy_current_health
@@ -803,6 +873,7 @@ def act_check_info(room: str, enemy: EnemyStats, which: int = 1) -> None:
 
 
 def act_compliment(room: str, enemy: EnemyStats, which: int = 1) -> bool:
+    """During battle, an option for the player to use to interact with the enemy by complimenting them."""
     print("You praise and flatter ", end="", flush=True)
     if room == "pawn_legion":
         input(f"{enemy[0]} {which}.")
@@ -817,9 +888,9 @@ def act_compliment(room: str, enemy: EnemyStats, which: int = 1) -> bool:
         return False
     elif i > 0 and i < 3:
         input("The compliment somehow lands. They thank you, a bit puzzled.")
-        input("Confused and hesitant, they accidentally give you an extra opportunity to do something!") #if there's time, add a mini attack of opportunity here instead of returning true
+        input("Confused and hesitant, they accidentally give you the opportunity to land an extra blow!")
         attack_of_opportunity("player", enemy[2], enemy[3], which)
-        return True
+        return False
     elif i == 3:
         input("The enemy is pleasantly stunned! They're temporarily distracted.")
         return True
@@ -831,34 +902,142 @@ def act_compliment(room: str, enemy: EnemyStats, which: int = 1) -> bool:
 
 
 def act_flirt(room: str, enemy: EnemyStats, which: int = 1) -> bool:
+    """During battle, an option for the player to use to interact with the enemy by flirting with them."""
     if room == "rook":
         input("The rook confusedly turns you down. Seems like they aren't really susceptible to flirting.")
     i: int = randint(0,2)
     if i == 0:
-        input()
+        input("You botch the delivery of the worst, most overused pick-up line I've ever heard.")
+        input("You awkward clown, you can't smoothtalk!")
+        input("Distracted, you let the enemy land an extra hit, you flustered mess!")
+        attack_of_opportunity("enemy", enemy[2], enemy[3], which)
+        return False
     elif i == 1:
-        input()
+        input(f"The {enemy[0].lower()} blinks. They thank you. They seem thrown a bit off-balance. You have time to sneak an extra hit in.")
+        attack_of_opportunity("enemy", enemy[2], enemy[3], which)
+        return False
     else:
-        input()
+        input(f"...Oh no... You overdid it. The {enemy[0].lower()} is smitten and momentarily distracted. You're sick, you know that?")
+        return True
 
 
-def act_mystify(room: str, enemy: EnemyStats, which: int = 1) -> bool:
-    input() #temp
-
+def act_mystify(room: str, enemy: EnemyStats) -> bool:
+    """During battle, an option for the player to use to interact with the enemy by mystifying them."""
+    i: int = randint(0, 2)
+    if i == 0:
+        input("You do something...   m y s t e r i o u s !")
+        input("(So mysterious, even you don't know what it is!)")
+    elif i == 1:
+        input("You do a magic trick in hopes of dazzling the enemy.")
+    elif i == 2:
+        input("You engage the enemy in a philosophical discussion about the mysteries of life and death.")
+    if room == "bishop":
+        input("The bishop gasps.")
+        input("BISHOP: \"HERESY!!!\"")
+        input("They seem too rage-filled to concentrate fully on attacking you for the moment.")
+        return True
+    else:
+        i = randint(0, 3)
+        if i == 0:
+            input(f"The {enemy[0].lower()} remains unimpressed.")
+            return False
+        elif i == 1:
+            input(f"The {enemy[0].lower()} is impressed!")
+            input("But not enough to stop.")
+            return False
+        elif i == 2:
+            input(f"The {enemy[0].lower()} is filled with wonder", end="", flush=True)
+            input(" /existential terror!")
+            input("They are temporarily distracted.")
+            return True
+        elif i == 3:
+            input(f"Your stunt has caused this {enemy[0].lower()} to achieve temporary transcendance!")
+            input("...Good job.")
+            input("How in the world did you manage that?")
+            input("It's safe to say they're a bit distracted.")
+            return True
+    
 
 def act_insult(room: str, enemy: EnemyStats, which: int = 1) -> bool:
-    input() #temp
+    """During battle, an option for the player to use to interact with the enemy by complimenting them."""
+    if room != "legion":
+        input(f"You insult the {enemy[0].lower()}.")
+    else:
+        input(f"You insult {enemy[0].lower()} {which}.")
+    i: int = randint(0,2)
+    if i == 0:
+        input("They look at you weirdly, laugh, and fire a witty comeback at you.")
+        input("Ouch.")
+        input(f"You are distracted by getting absolutely destroyed, and the {enemy[0].lower()} gets in a cheap shot.")
+        attack_of_opportunity("enemy", enemy[2], enemy[3], which)
+        return False
+    if i == 1:
+        input("They seem hurt and taken aback.")
+        input("They're off their game, and you take the opportunity to strike out quickly. Even after that, they'll probably be a bit distracted for a minute.")
+        attack_of_opportunity("player", enemy[2], enemy[3], which)
+        return True
+    else:
+        input("Looks like you hit a nerve!")
+        input(f"The {enemy[0].lower()} lashes out recklessly, infuriated.")
+        i = randint(0, 1)
+        if i == 0:
+            input("They strike at you viciously, fuelled by rage!")
+            attack_of_opportunity("enemy", enemy[2], enemy[3], which)
+        else:
+            input("They lunge at you, but they miss and hurt themself in the process!")
+            i = randint(1, 4)
+            input(f"{i} damage!")
+            global enemy_current_health
+            enemy_current_health -= i
+        input("They will still be a bit distracted as they calm down.")
+        return True
 
 
 def act_trick(room: str, enemy: EnemyStats, which: int = 1) -> bool:
-    input() #temp
+    """During battle, an option for the player to use to interact with the enemy by lying to them."""
+    i: int = 0
+    if enemy[4] > 50:
+        i = randint(0, 4)
+    else:
+        i = randint(0, 2)
+        if room == "rook" and i == 1:
+            i = 0
+    if i == 0:
+        input(f"You tell a clever lie to the {enemy[0].lower()}. For a split second, they seem to believe you.")
+        input("It's long enough for you to get a cheap shot in.")
+        attack_of_opportunity("player", enemy[2], enemy[3], which)
+    else:
+        input(f"You tell the {enemy[0].lower()} an elaborate lie, and they almost believe you!")
+        input("However, they realize that you're trying to deceive them before you get the chance to strike.")
 
 
 def act_dance(room: str, enemy: EnemyStats, which: int = 1) -> bool:
-    input() #temp
-
+    """During battle, an option for the player to use to interact with the enemy by dancing."""
+    i: int = randint(0, 2)
+    if i == 0:
+        input("You strike a dramatic pose!")
+    elif i == 1:
+        input("You start dancing energetically.")
+    else:
+        input("You begin breakdancing.")
+    i = randint(0, 2)
+    if i == 0:
+        input(f"The {enemy[0].lower()} is not amused. Preoccupied, you can't react fast enough as they attempt a quick attack of opportunity.")
+        attack_of_opportunity("enemy", enemy[2], enemy[3], which)
+        return False
+    elif i == 1:
+        if room != "legion":
+            input(f"The {enemy[0].lower()} is just... confused as to why you're dancing during a battle.")
+        else:
+            input(f"{enemy[0]} {str(which)} is just... confused as to why you're dancing during a battle.")
+        return False
+    elif i == 2:
+        input(f"The {enemy[0].lower()} joins you! They'll be a bit distracted by dancing temporarily.")
+        return True
+    
 
 def choose_enemy(alive: list(bool)) -> int:
+    """During a battle with multiple enemies, this allows the player to choose which enemy to target."""
     if len(alive) > 1:
         print("Which one? ", end="", flush=True)
         i: int = 1
@@ -882,11 +1061,14 @@ def choose_enemy(alive: list(bool)) -> int:
             which = input("Which? ").lower()
 
 
-def speed_attack(weapon: str, enemy: EnemyStats, which: int = 1) -> None:
-    input() #temp
+def speed_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int, alive: list(bool)) -> None:
+    """Allows the player to perform an attack on the enemy that relies on quick reflexes."""
+    input("(Sorry, but speed-based attacks are not currently working. They will be added soon.)")
+    rng_attack(weapon, enemy, which, room, turn, alive)
 
 
 def rng_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int, alive: list(bool)) -> None:
+    """Allows the player to perform an attack on the enemy that relies on random number generators."""
     lowest_dmg: int = 0
     highest_dmg: int = 10
     if weapon == "sword":
@@ -900,6 +1082,8 @@ def rng_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int,
     elif weapon == "bow":
         global arrows_ready
         global arrows_quiver
+        global using_poisoned_arrows
+        global poison_left
         if arrows_ready == 0 and arrows_quiver == 0:
             input("You don't have any arrows left!")
             return player_turn(room, enemy, turn, alive)
@@ -908,15 +1092,22 @@ def rng_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int,
             return player_turn(room, enemy, turn, alive)
         else:
             input("You fire an arrow!")
+            if using_poisoned_arrows:
+                poison_left[which - 1] = 3
+        arrows_ready -= 1
         lowest_dmg = -2
         highest_dmg = 15
     damage: int = randint(lowest_dmg, highest_dmg)
+    global enemy_distracted
+    if enemy_distracted:
+        damage += 1
     if weapon == "bow" and enemy[4] >= 50:
         damage -= 1
     global temp_item_buffs_ADS
     global upgrades
     if temp_item_buffs_ADS[0] > 0:
         damage += randint(3, 8)
+        temp_item_buffs_ADS[0] -= 1
     if "bishop soul" in upgrades:
         damage += 2
     if "queen soul" in upgrades:
@@ -939,6 +1130,7 @@ def rng_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int,
 
 
 def attack_of_opportunity(who_attacking: str, enemy_attack: int, enemy_defense: int, which: int) -> None:
+    """Allows the player or enemy to perform a quick attack while the other is occupied for a second."""
     damage: int = randint(0,4)
     MISS_CHANCE = 25
     if who_attacking == "enemy":
@@ -969,7 +1161,7 @@ def attack_of_opportunity(who_attacking: str, enemy_attack: int, enemy_defense: 
         if randint(0, MISS_CHANCE) == 0:
             damage = 0
         global enemy_current_health
-        input(f"{damage} Damage!")
+        input(f"{damage} damage!")
         if damage == 0:
             input("Miss!")
         enemy_current_health[which] -= damage
@@ -980,6 +1172,9 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list(bool)) -> None:
     actions: list[str] = ["sword", "dagger", "bow", "magic", "healing"]
     lowest_dmg: int = 0
     highest_dmg: int = 10
+    global temp_item_buffs_ADS
+    if temp_item_buffs_ADS[2] > 0:
+        temp_item_buffs_ADS[2] -= 1
     if room == "legion":
         legion_who_acts: list[int] = list()
         i: int = 1
@@ -1082,6 +1277,9 @@ def enemy_turn(room: str, enemy: EnemyStats, alive: list(bool)) -> None:
                 input("Critical healing!")
             enemy_current_health[current_which] += healing
         if action != "healing":
+            global enemy_distracted
+            if enemy_distracted:
+                damage -= 2
             if enemy[2] >= 60:
                 lowest_dmg += 3
                 highest_dmg += 3
@@ -1122,7 +1320,11 @@ def take_damage(damage: int, weapon: str = "Default") -> None:
         temp_item_buffs_ADS[1] -= 1
     if temp_item_buffs_ADS[2] > 0:
         input("You raise your shield;")
-        i: int = randint(0, 5)
+        i: int = 0
+        if "iron shield" in upgrades:
+            i = randint(0, 5)
+        else:
+            i = randint(0,3)
         if weapon == "dagger":
             input("The blade of the dagger glances off of the shield!")
         elif weapon == "sword":
@@ -1157,6 +1359,7 @@ def take_damage(damage: int, weapon: str = "Default") -> None:
 
 
 def fight_flavor_text(room: str, turn: int, alive: list(bool)) -> None:
+    """During a fight, displays every round to add personality to the experience."""
     flavor_texts: list[str] = list()
     overflow_texts: list[str] = list()
     if room == "tutorial":
