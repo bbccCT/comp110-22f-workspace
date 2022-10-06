@@ -5,7 +5,6 @@ __author__ = "930605992"
 
 import time
 from random import randint
-from turtle import up
 
 
 points: int = 0
@@ -13,7 +12,7 @@ gold: int = 50
 user_name: str = ""
 player: str = ""
 max_health: int = 30
-health: int = max_health
+health: int = 30
 speed: int = 10
 room_id: str = "tutorial"
 met_jester: bool = False
@@ -41,6 +40,7 @@ U_BOX_R: str = "\U0001F7E5"
 def main() -> None:
     """Entrypoint of program."""
     greet()
+    health = max_health
     still_playing: bool = True
     while still_playing:
         global room_id
