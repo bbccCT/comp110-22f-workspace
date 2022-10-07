@@ -7,6 +7,8 @@ import time
 from random import randint, uniform
 import msvcrt
 
+from matplotlib.pyplot import arrow
+
 
 points: int = 0
 gold: int = 50
@@ -548,12 +550,12 @@ def room_fight(room: str) -> str:
     global who_alive
     who_alive = [True]
     enemy: EnemyStats
-    STATS_JESTER: EnemyStats = ("Jester", 50, 15, 20, 99, 30, 50)
-    STATS_PAWN: EnemyStats = ("Pawn", 25, 10, 20, 10, 5, 15)
-    STATS_KNIGHT: EnemyStats = ("Knight", 75, 25, 25, 80, 50, 30)
-    STATS_BISHOP: EnemyStats = ("Bishop", 30, 75, 5, 50, 75, 50)
-    STATS_ROOK: EnemyStats = ("Rook", 80, 25, 80, 15, 50, 75)
-    STATS_QUEEN: EnemyStats = ("Queen", 100, 80, 60, 90, 300, 100)
+    STATS_JESTER: EnemyStats = ("Jester", 30, 15, 20, 99, 30, 50)
+    STATS_PAWN: EnemyStats = ("Pawn", 15, 10, 20, 10, 5, 15)
+    STATS_KNIGHT: EnemyStats = ("Knight", 40, 25, 25, 80, 50, 30)
+    STATS_BISHOP: EnemyStats = ("Bishop", 20, 75, 5, 50, 75, 50)
+    STATS_ROOK: EnemyStats = ("Rook", 50, 25, 80, 15, 50, 75)
+    STATS_QUEEN: EnemyStats = ("Queen", 75, 80, 60, 90, 300, 100)
     STATS_KING: EnemyStats = ("King", 300, 50, 20, 20, 100, 85)
     if room == "tutorial":
         enemy = STATS_JESTER
@@ -827,6 +829,7 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list[bool]) -> N
         elif choice == "quiver":
             global arrows_quiver
             if arrows_quiver == 0:
+                input("You don't have any arrows left to draw!")
                 return player_turn(room, enemy, turn, alive)
             arrows_transferred: int = 4 - arrows_ready
             if arrows_quiver < 4:
@@ -837,12 +840,25 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list[bool]) -> N
             using_poisoned_arrows = False
         elif choice == "poisoned arrows":
             global poisoned_arrow_bunch
+            if poisoned_arrow_bunch <= 0:
+                input("You don't have any poisoned arrows!")
+                return player_turn(room, enemy, turn, alive)
             arrows_ready = 4
             using_poisoned_arrows = True
             poisoned_arrow_bunch -= 1
         elif choice == "atk scroll":
+            global attack_up_scroll
+            if attack_up_scroll <= 0:
+                input("You don't have any attack-up scrolls!")
+                return player_turn(room, enemy, turn, alive)
+            attack_up_scroll -= 1
             temp_item_buffs_ADS[0] = 3
         elif choice == "def ointment":
+            global defense_up_ointment
+            if defense_up_ointment <= 0:
+                input("You don't have any defense-up ointments!")
+                return player_turn(room, enemy, turn, alive)
+            attack_up_scroll -= 1
             temp_item_buffs_ADS[1] = 3
 
 
@@ -1739,11 +1755,28 @@ def shop_prices(p_pot: ItemPrice, p_arw: ItemPrice, p_p_arws: ItemPrice, p_atk: 
                 input("Nothing at the moment? That's alright. By all means, though, continue looking.")
             elif choice_int > 0 and wares[int(choice) - 1][1] * choice_int <= gold:
                 input(f"{choice_int}... great; that'll be {wares[int(choice) - 1][1] * choice_int}G. After the purchase, you should have {gold - wares[int(choice) - 1][1] * choice_int}G left.")
-                choice = input("Would you like to complete the transaction? [YES] or [NO]? ").lower()
+                choice_confirm: str = input("Would you like to complete the transaction? [YES] or [NO]? ").lower()
                 while choice != "yes" and choice != "no":
-                    choice = input("Complete purchase? [YES] or [NO]. ").lower()
-                if choice == "yes":
+                    choice_confirm = input("Complete purchase? [YES] or [NO]. ").lower()
+                if choice_confirm == "yes":
                     gold -= wares[int(choice) - 1][1] * choice_int
+                    if choice == "1":
+                        global hp_potions
+                        hp_potions += choice_int
+                    elif choice == "2":
+                        global arrows_quiver
+                        arrows_quiver += choice_int
+                    elif choice == "3":
+                        global poisoned_arrow_bunch
+                        poisoned_arrow_bunch += choice_int
+                    elif choice == "4":
+                        global attack_up_scroll
+                        attack_up_scroll += choice_int
+                    elif choice == "5":
+                        global defense_up_ointment
+                        defense_up_ointment += choice_int
+                    else:
+                        input("Oh... you somehow broke my system... Hmmm... Well, let's just ignore that for now...")
                     input("Wonderful! Would you like anything else?")
                     bought = True
                 else:
