@@ -1171,10 +1171,9 @@ def speed_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: in
     input(f"To land a critical hit, you must react below {int(delay[1] * 100) / 100}s, and a miss is guaranteed after {int(delay[2] * 100) / 100}s.")
     delay[1] = (1 - enemy[4] * 0.01) + 0.2
     damage: int = 0
-    key_to_be_pressed: chr = chr(randint(97, 122))
+    key_to_be_pressed: str = chr(randint(97, 122))
     input("Type the letter as prompted and hit enter as soon as you see the letter in brackets!")
     print("Get ready...")
-    time_stop_input_spam: float = time.time() + delay[0]
     time.sleep(delay[0])
     # while msvcrt.kbhit():
     #     if msvcrt.getch():
@@ -1182,7 +1181,7 @@ def speed_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: in
     #         time.sleep(delay[0])
     time_start: float = time.time()
     choice: str = ""
-    while choice != str(key_to_be_pressed):
+    while choice != key_to_be_pressed:
         choice = input(f"[{key_to_be_pressed}]! ").lower()
     time_end: float = time.time()
     time_delta: float = time_end - time_start
