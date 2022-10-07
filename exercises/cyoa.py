@@ -1209,7 +1209,7 @@ def speed_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: in
     if "bishop soul" in upgrades:
         damage += 2
     if "queen soul" in upgrades:
-        damage += 4
+        damage += 104
     if weapon == "bow" and damage < 5:
         damage = 0
     if enemy[3] >= 50:
@@ -1277,7 +1277,7 @@ def rng_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int,
     if "bishop soul" in upgrades:
         damage += 2
     if "queen soul" in upgrades:
-        damage += 4
+        damage += 104
     if weapon == "bow" and damage < 5:
         damage = 0
     if enemy[3] >= 50:
