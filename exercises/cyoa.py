@@ -5,7 +5,7 @@ __author__ = "930605992"
 
 import time
 from random import randint, uniform
-import msvcrt
+# import msvcrt
 
 
 points: int = 0
@@ -1133,30 +1133,28 @@ def choose_enemy(alive: list[bool]) -> int:
 
 def speed_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: int, alive: list[bool]) -> None:
     """Allows the player to perform an attack on the enemy that relies on quick reflexes."""
-    input("(Sorry, but speed-based attacks are not currently working. They will be added soon.)")
-    # return rng_attack(weapon, enemy, which, room, turn, alive)
     lowest_dmg: int = 0
     highest_dmg: int = 10
-    delay: list[float] = [3, 0.2, 1]  # Before, crit window, miss threshold
+    delay: list[float] = [3, 0.5, 1]  # Before, crit window, miss threshold
     if weapon == "sword":
         input("Get ready to swing your sword!")
         lowest_dmg = 4
         highest_dmg = 9
         delay[0] = uniform(3, 4)
-        delay[2] += (1 - enemy[4] * 0.01) + 1
+        delay[2] += (1 - enemy[4] * 0.01) + 2.2
     elif weapon == "dagger":
         input("You ready your dagger!")
         lowest_dmg = 1
         highest_dmg = 12
         delay[0] = uniform(1, 2)
-        delay[2] += (1 - enemy[4] * 0.01) + 0.2
+        delay[2] += (1 - enemy[4] * 0.01) + 1.2
     elif weapon == "bow":
         global arrows_ready
         global arrows_quiver
         global using_poisoned_arrows
         global poison_left
         delay[0] = uniform(2, 3)
-        delay[1] += (1 - enemy[4] * 0.01) + 2
+        delay[2] += (1 - enemy[4] * 0.01) + 4
         if arrows_ready == 0 and arrows_quiver == 0:
             input("You don't have any arrows left!")
             return player_turn(room, enemy, turn, alive)
@@ -1170,30 +1168,37 @@ def speed_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: in
         arrows_ready -= 1
         lowest_dmg = -2
         highest_dmg = 15
-    delay[1] = (1 - enemy[4] * 0.01) + 2.5
+    input(f"To land a critical hit, you must react below {int(delay[1] * 100) / 100}s, and a miss is guaranteed after {int(delay[2] * 100) / 100}s.")
+    delay[1] = (1 - enemy[4] * 0.01) + 0.2
     damage: int = 0
-    print("Hit enter as soon as you see the \"NOW!\"")
-    input("Get ready...")
+    key_to_be_pressed: chr = chr(randint(97, 122))
+    input("Type the letter as prompted and hit enter as soon as you see the letter in brackets!")
+    print("Get ready...")
+    time_stop_input_spam: float = time.time() + delay[0]
     time.sleep(delay[0])
-    while msvcrt.kbhit():
-        if msvcrt.getch():
-            print("Don't hit anything early!")
-            time.sleep(delay[0])
+    # while msvcrt.kbhit():
+    #     if msvcrt.getch():
+    #         print("Don't hit anything early!")
+    #         time.sleep(delay[0])
     time_start: float = time.time()
-    input("NOW!")
+    choice: str = ""
+    while choice != str(key_to_be_pressed):
+        choice = input(f"[{key_to_be_pressed}]! ").lower()
     time_end: float = time.time()
     time_delta: float = time_end - time_start
+    input(f"Reaction time: {int(time_delta * 1000) / 1000}s!")
     if time_delta < 0:
         input("Cheating isn't nice.")
         time_delta = 60
     if time_delta <= delay[1]:
         damage = highest_dmg
-    elif time_delta > delay[2]:
-        damage = 0
-    else:
-        time_standardized: float = time_delta / delay[2]
+        input("Critical hit!")
+    elif time_delta > delay[1] and time_delta <= delay[2]:
+        time_standardized: float = (delay[2] - time_delta) / delay[2]
         damage_highest_zeroed: int = highest_dmg - lowest_dmg
-        damage = int(damage_highest_zeroed * time_standardized + lowest_dmg)
+        damage = int(damage_highest_zeroed * time_standardized + lowest_dmg + 1)
+    else:
+        damage = 0
     global enemy_distracted
     if enemy_distracted:
         damage += 2
@@ -1221,8 +1226,6 @@ def speed_attack(weapon: str, enemy: EnemyStats, which: int, room: str, turn: in
     input(f"{damage} damage!")
     if damage == 0:
         input("Miss!")
-    elif damage >= highest_dmg - 1:
-        input("Critical hit!")
     global enemy_current_health
     enemy_current_health[which - 1] -= damage
     if enemy_current_health[which - 1] <= 0:
