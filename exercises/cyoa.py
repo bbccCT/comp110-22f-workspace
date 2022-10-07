@@ -7,8 +7,6 @@ import time
 from random import randint, uniform
 import msvcrt
 
-from matplotlib.pyplot import arrow
-
 
 points: int = 0
 gold: int = 50
@@ -600,7 +598,7 @@ def room_fight(room: str) -> str:
         if room != "pawn_legion":
             input(f"Congratulations! You've defeated the {enemy[0]}!")
         else:
-            input(f"Congratulations! You've defeated the legion of pawns!")
+            input("Congratulations! You've defeated the legion of pawns!")
         input(f"You earned {enemy[6]}G!")
         if room == "tutorial":
             upgrades.append("iron shield")
@@ -817,7 +815,7 @@ def player_turn(room: str, enemy: EnemyStats, turn: int, alive: list[bool]) -> N
             health += healing
             if health >= max_health:
                 health = max_health
-                i = randint(0,2)
+                i = randint(0, 2)
                 print("HP fully restored.")
                 if i == 0:
                     input("Good as new!")
