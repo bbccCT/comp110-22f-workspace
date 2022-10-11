@@ -26,8 +26,8 @@ def favorite_color(a: dict[str, str]) -> str:
     for key in color_counter:
         if not color_counter[key] in colors:
             colors[color_counter[key]] = key
-        else:
-            colors[color_counter[key]] += ", " + key
+        # else:
+        #     colors[color_counter[key]] += ", " + key
     mode_num: int = 0
     for key in colors:
         if key > mode_num:
