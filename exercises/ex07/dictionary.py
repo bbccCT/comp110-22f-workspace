@@ -10,12 +10,13 @@ def invert(a: dict[str, str]) -> dict[str, str]:
         if a[key] in result:
             raise KeyError("You cannot have multiple instances of the same key!")
         result[a[key]] = key
+    return result
     
 
 def favorite_color(a: dict[str, str]) -> str:
     """Returns color that appears the most in a dictionary of type [str, str] containing names and colors."""
     if a == {}:
-        return {}
+        return ""
     color_counter: dict[str, int] = {}
     for key in a:
         if a[key] not in color_counter:
