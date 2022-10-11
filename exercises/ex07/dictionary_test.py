@@ -13,6 +13,12 @@ def test_invert_empty() -> None:
     assert invert(xs) == {}
 
 
+def test_invert_single() -> None:
+    """Tests invert function with dictionary input containing a single entry."""
+    xs: dict[str, str] = {"dog": "cat"}
+    assert invert(xs) == {"cat": "dog"}
+
+
 def test_invert_many_items() -> None:
     """Tests invert function with normal dictionary input with no repeating values."""
     xs: dict[str, str] = dict()

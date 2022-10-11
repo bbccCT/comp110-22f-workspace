@@ -36,6 +36,7 @@ def favorite_color(a: dict[str, str]) -> str:
 
 
 def count(a: list[str]) -> dict[str, int]:
+    """Returns dictionary of inputs with their frequencies given a list of strings."""
     frequencies: dict[str, int] = {}
     for num in a:
         if num not in frequencies:
