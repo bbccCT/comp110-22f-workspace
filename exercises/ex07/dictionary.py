@@ -24,15 +24,15 @@ def favorite_color(a: dict[str, str]) -> str:
         else:
             color_counter[a[key]] += 1
     colors: dict[int, str] = {}
-    for key in color_counter:
-        if not color_counter[key] in colors:
-            colors[color_counter[key]] = key
+    for color in color_counter:
+        if not color_counter[color] in colors:
+            colors[color_counter[color]] = color
         # else:
-        #     colors[color_counter[key]] += ", " + key
+        #     colors[color_counter[color]] += ", " + color
     mode_num: int = 0
-    for key in colors:
-        if key > mode_num:
-            mode_num = key
+    for number in colors:
+        if number > mode_num:
+            mode_num = number
     return colors[mode_num]
 
 
