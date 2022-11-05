@@ -110,6 +110,7 @@ class Model:
         for cell in self.population:
             cell.tick()
             self.enforce_bounds(cell)
+        self.check_contacts()
 
     def random_location(self) -> Point:
         """Generate a random location."""
@@ -141,7 +142,12 @@ class Model:
 
     def check_contacts(self) -> None:
         """Check whether any cells come in contact with each other."""
-        # TODO
+        i: int = 0
+        while i < len(self.population):
+            for cell_num in range(i + 1, len(self.population)):
+                if self.population[i].location.distance(self.population[cell_num].location) < constants.CELL_RADIUS:
+                    self.population[i].contact_with(self.population[cell_num])
+            i += 1
 
     def is_complete(self) -> bool:
         """Method to indicate when the simulation is complete."""
