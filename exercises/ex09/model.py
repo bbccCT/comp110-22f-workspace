@@ -48,6 +48,10 @@ class Cell:
     def tick(self) -> None:
         """Update cell every tick."""
         self.location = self.location.add(self.direction)
+        if self.is_infected():
+            self.sickness += 1
+            if self.sickness > constants.RECOVERY_PERIOD:
+                self.immunize()
         
     def color(self) -> str:
         """Return the color representation of a cell."""
@@ -55,12 +59,18 @@ class Cell:
             return "red"
         elif self.is_vulnerable():
             return "gray"
+        elif self.is_immune():
+            return "blue"
         else:
             return "black"
 
     def contract_disease(self) -> None:
         """Change sickness state to infected."""
         self.sickness = constants.INFECTED
+
+    def immunize(self) -> None:
+        """Change sickness state to immune."""
+        self.sickness = constants.IMMUNE
 
     def is_vulnerable(self) -> bool:
         """Returns bool of if this cell is vulnerable."""
@@ -71,7 +81,14 @@ class Cell:
     
     def is_infected(self) -> bool:
         """Returns bool of if this cell is infected."""
-        if self.sickness == constants.INFECTED:
+        if self.sickness >= constants.INFECTED:
+            return True
+        else:
+            return False
+
+    def is_immune(self) -> bool:
+        """Returns bool of if this cell is immunze."""
+        if self.sickness == constants.IMMUNE:
             return True
         else:
             return False
@@ -90,7 +107,7 @@ class Model:
     population: list[Cell]
     time: int = 0
 
-    def __init__(self, cells: int, speed: float, infected: int):
+    def __init__(self, cells: int, speed: float, infected: int, immune: int = 0):
         """Initialize the cells with random locations and directions."""
         if infected <= 0 or infected >= cells:
             raise ValueError("Some number of the cells must begin infected, but also not all.")
@@ -103,6 +120,9 @@ class Model:
             if infected > 0:
                 cell.contract_disease()
                 infected -= 1
+            elif immune > 0:
+                cell.immunize()
+                immune -= 1
     
     def tick(self) -> None:
         """Update the state of the simulation by one time step."""

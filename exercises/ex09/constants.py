@@ -1,9 +1,11 @@
 """Constants used through the simulation."""
 
 CELL_RADIUS: int = 15
-CELL_COUNT: int = 10
+CELL_COUNT: int = 25
 CELL_SPEED: float = 5.0
-CELLS_START_INFECTED = 2
+CELLS_START_INFECTED: int = 2
+CELLS_START_IMMUNE: int = 2
+RECOVERY_PERIOD: int = 150
 
 BOUNDS_WIDTH: int = 400
 MAX_X: float = BOUNDS_WIDTH / 2
@@ -17,3 +19,4 @@ VIEW_HEIGHT: int = BOUNDS_HEIGHT + CELL_RADIUS * 2
 
 VULNERABLE: int = 0
 INFECTED: int = 1
+IMMUNE: int = -1
