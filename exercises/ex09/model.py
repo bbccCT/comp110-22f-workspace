@@ -3,7 +3,7 @@
 from __future__ import annotations
 from random import random
 from exercises.ex09 import constants
-from math import sin, cos, pi, sqrt
+from math import cos, pi, sqrt
 
 
 __author__ = "730605992"
@@ -111,6 +111,8 @@ class Model:
         """Initialize the cells with random locations and directions."""
         if infected <= 0 or infected >= cells:
             raise ValueError("Some number of the cells must begin infected, but also not all.")
+        if immune < 0 or immune >= cells:
+            raise ValueError("Must have some non-immune cells.")
         self.population = []
         for _ in range(cells):
             start_location: Point = self.random_location()
@@ -171,4 +173,7 @@ class Model:
 
     def is_complete(self) -> bool:
         """Method to indicate when the simulation is complete."""
-        return False
+        for cell in self.population:
+            if not cell.is_vulnerable() and not cell.is_immune():
+                return False
+        return True
