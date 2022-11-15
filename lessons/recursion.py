@@ -11,6 +11,12 @@ class Node:
         self.data = data
         self.next = next
 
+    def __str__(self) -> str:
+        if self.next == None:
+            return f"{self.data} -> None"
+        else:
+            return f"{self.data} -> {self.next}"
+
 
 # def sum(node: Node) -> int:
 #     if node.next == None:
@@ -45,3 +51,4 @@ head = Node(2, head)
 head = Node(1, head)
 print(sum(head))
 print(count(head))
+print(head)
