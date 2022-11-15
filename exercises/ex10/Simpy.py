@@ -20,12 +20,13 @@ class Simpy:
         return f"Simpy({self.values})"
 
     def fill(self, filling: float, length: int) -> None:
-        """Fill this object with a certain float for a certain number of items."""
+        """Reset and fill this object with a certain float for a certain number of items."""
+        self.values = []
         for i in range(length):
             self.values.append(filling)
 
     def arange(self, start: float, stop: float, step: float = 1.0) -> None:
-        """Fill this object with a sequence of numbers between given starting and stopping floats [x,y) with an optional float for steps between each iteration."""
+        """Fill (additive) this object with a sequence of numbers between given starting and stopping floats [x,y) with an optional float for steps between each iteration."""
         assert step != 0.0
         i: float = start
         if step > 0:
