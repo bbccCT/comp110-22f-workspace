@@ -578,6 +578,7 @@ def room_fight(room: str) -> str:
         i: int = 1
         while i < 8:
             enemy_current_health.append(enemy[1])
+            i += i
     global health
     while True in who_alive and health > 0:
         if room == "queen":
