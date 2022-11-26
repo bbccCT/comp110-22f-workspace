@@ -53,3 +53,15 @@ def value_at(head: Optional[Node], index: int) -> int:
         return head.data
     else:
         return value_at(head.next, index - 1)
+
+
+def max(head: Optional[Node]) -> int:
+    """Returns the maximum data value in a linked list"""
+    if head is None:
+        raise ValueError("Cannot call max with None")
+    if head.next is None:
+        return head.data
+    elif max(head.next) > head.data:
+        return max(head.next)
+    else:
+        return head.data
