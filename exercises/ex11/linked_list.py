@@ -27,8 +27,10 @@ class Node:
 def is_equal(lhs: Optional[Node], rhs: Optional[Node]) -> bool:
     """Test if two linked lists are deeply (values and order) equal to one another."""
     if lhs is None and rhs is None:
+        print("1")
         return True
     elif lhs is None or rhs is None or lhs.data != rhs.data:
+        print(str(lhs.data) + ", " + str(rhs.data))
         return False
     else:
         return is_equal(lhs.next, rhs.next)
@@ -65,3 +67,25 @@ def max(head: Optional[Node]) -> int:
         return max(head.next)
     else:
         return head.data
+
+
+def linkify(values: list[int]) -> Optional[Node]:
+    """Takes a list of ints and returns a linked list of Nodes with those values."""
+    if len(values) > 1:
+        return Node(values[0], linkify(values[1:]))
+    elif len(values) == 1:
+        return Node(values[0], None)
+    elif len(values) == 0:
+        return None
+    
+
+def scale(head: Optional[Node], factor: int) -> Optional[Node]:
+    """Takes a linked list of Nodes and scales each Node's value by the given factor."""
+    if head is None:
+        raise ValueError("scale cannot be called with None")
+    else:
+        if head.next is None:
+            head.data *= factor
+            return head
+        else:
+            return Node(head.data * factor, scale(head.next, factor))
