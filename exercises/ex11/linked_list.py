@@ -3,7 +3,7 @@
 from __future__ import annotations
 from typing import Optional
 
-__author__ = "730605992p"
+__author__ = "730605992"
 
 
 class Node:
@@ -58,7 +58,7 @@ def value_at(head: Optional[Node], index: int) -> int:
 
 
 def max(head: Optional[Node]) -> int:
-    """Returns the maximum data value in a linked list"""
+    """Returns the maximum data value in a linked list."""
     if head is None:
         raise ValueError("Cannot call max with None")
     if head.next is None:
@@ -82,10 +82,11 @@ def linkify(values: list[int]) -> Optional[Node]:
 def scale(head: Optional[Node], factor: int) -> Optional[Node]:
     """Takes a linked list of Nodes and scales each Node's value by the given factor."""
     if head is None:
-        raise ValueError("scale cannot be called with None")
+        return None
     else:
-        if head.next is None:
-            head.data *= factor
-            return head
+        result: Node = Node(head.data, head.next)
+        if result.next is None:
+            result.data *= factor
+            return result
         else:
-            return Node(head.data * factor, scale(head.next, factor))
+            return Node(result.data * factor, scale(result.next, factor))

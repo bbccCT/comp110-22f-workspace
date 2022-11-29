@@ -69,7 +69,7 @@ def test_max_empty() -> None:
 
 def test_linkify_empty() -> None:
     """Requesting conversion of empty list to linked list of Nodes."""
-    assert linkify([]) == None
+    assert linkify([]) is None
 
 
 def test_linkify_ordered() -> None:
@@ -80,8 +80,7 @@ def test_linkify_ordered() -> None:
 
 def test_scale_empty() -> None:
     """Requesting scaling of empty list."""
-    with pytest.raises(ValueError):
-        scale(None, 3)
+    assert scale(None, 3) is None
 
 
 def test_scale_ordered() -> None:
